@@ -82,6 +82,46 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Custom Scrollbar ────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary); 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border); 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted); 
+}
+
+/* Specific scrollbar for input fields or textareas like inside boxes */
+textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: var(--color-bg-input);
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
 a {
   color: var(--color-accent);
   text-decoration: none;
@@ -331,6 +371,39 @@ a:hover {
 
 .check-item input {
   display: none;
+}
+
+/* ── Chips ───────────────────────────────────────── */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-main);
+}
+
+.chip:hover {
+  border-color: var(--color-accent-dark);
+  color: var(--color-text-primary);
+}
+
+.chip.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-glow);
+  color: var(--color-accent-light);
 }
 
 /* ── Radio cards ─────────────────────────────────── */

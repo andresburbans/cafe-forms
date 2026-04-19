@@ -90,19 +90,32 @@ export default function FincaDetailPage() {
           <Field label="Fecha visita" value={finca.fechaVisita} />
           <Field label="ID Finca" value={finca.idFincaOficina} />
         </div>
+        <div className="row-2">
+          <Field label="Rol Informante" value={finca.rol_informante} />
+          <Field label="Estado Sincronización" value={finca.sync_status} />
+        </div>
       </div>
 
       {/* Sección 1 */}
       <div className="card mb-md">
         <div className="section-header"><span className="section-number">1</span><span className="section-title">Ubicación</span></div>
         <div className="row-2">
+          <Field label="Departamento" value={finca.departamento} />
           <Field label="Municipio" value={finca.municipio} />
-          <Field label="Vereda" value={finca.vereda} />
         </div>
         <div className="row-2">
+          <Field label="Vereda" value={finca.vereda} />
           <Field label="Altitud (m.s.n.m.)" value={finca.altitud} />
-          <Field label="Años tradición" value={finca.anosTradicion} />
         </div>
+        <div className="row-2">
+          <Field label="Años tradición" value={finca.anosTradicion} />
+          <Field label="Género / Liderazgo" value={finca.genero_liderazgo} />
+        </div>
+        <div className="row-2">
+          <Field label="WhatsApp" value={finca.whatsapp} />
+          <Field label="Correo" value={finca.correo} />
+        </div>
+        <Field label="Historia de la finca" value={finca.historia_finca} />
       </div>
 
       {/* Sección 2 */}
@@ -112,6 +125,11 @@ export default function FincaDetailPage() {
           <Field label="Área total (ha)" value={finca.areaTotalHa} />
           <Field label="Área café (ha)" value={finca.areaCafeHa} />
         </div>
+        <div className="row-2">
+          <Field label="Prod. Anual (kg)" value={finca.produccion_anual_kg} />
+          <Field label="Edad Cafetales (años)" value={finca.edad_promedio_cafetales} />
+        </div>
+        <Field label="Infraestructura de secado" value={[...finca.infraestructura_secado, finca.otraInfraestructuraSecado].filter(Boolean).join(', ')} />
         <div className="row-2">
           <Field label="Cosecha principal" value={formatRange(finca.cosechaPrincipalIni, finca.cosechaPrincipalFin)} />
           <Field label="Mitaca" value={formatRange(finca.cosechaMitacaIni, finca.cosechaMitacaFin)} />
@@ -124,6 +142,9 @@ export default function FincaDetailPage() {
         <div className="section-header"><span className="section-number">3</span><span className="section-title">Producto</span></div>
         <Field label="Variedades" value={[...finca.variedades, finca.otraVariedad].filter(Boolean).join(', ') || 'N/A'} />
         <Field label="Métodos beneficio" value={finca.metodosBeneficio.join(', ') || 'N/A'} />
+        <Field label="Tipos de fermentación" value={[...finca.tipos_fermentacion, finca.otroTipoFermentacion].filter(Boolean).join(', ')} />
+        <Field label="Perfil de taza" value={[...finca.perfil_taza, finca.otroPerfilTaza].filter(Boolean).join(', ')} />
+        <Field label="Certificaciones" value={[...finca.certificaciones, finca.otraCertificacion].filter(Boolean).join(', ')} />
       </div>
 
       {/* Sección 4 */}
@@ -137,6 +158,8 @@ export default function FincaDetailPage() {
         </div>
         <Field label="Cultivos sombra" value={[...finca.cultivosSombra, finca.otroCultivoSombra].filter(Boolean).join(', ') || 'N/A'} />
         <Field label="Manejo agronómico" value={manejoLabel || 'N/A'} />
+        <Field label="Manejo aguas mieles" value={[finca.manejo_aguas_mieles, finca.otroManejoAguasMieles].filter(Boolean).join(' - ')} />
+        <Field label="Fauna y biodiversidad" value={finca.fauna_biodiversidad} />
       </div>
 
       {/* GPS */}

@@ -47,3 +47,56 @@ export const FOTO_TIPOS = [
   { value: 'infraestructura' as const, label: 'Infraestructura', desc: 'Secadero, beneficio o bosque' },
   { value: 'extra' as const, label: 'Foto adicional', desc: 'Cualquier dato relevante' },
 ] as const;
+
+export const ROLES_INFORMANTE = [
+  'Propietario',
+  'Administrador',
+  'Trabajador',
+  'Familiar',
+] as const;
+
+export const GENERO_LIDERAZGO = [
+  'Femenino',
+  'Masculino',
+  'LGTBIQ+',
+  'Empresa Familiar',
+] as const;
+
+export const INFRAESTRUCTURA_SECADO = [
+  'Marquesina solar',
+  'Silo mecánico',
+  'Patios de cemento',
+  'Camas africanas',
+] as const;
+
+export const TIPOS_FERMENTACION = [
+  'Aeróbica',
+  'Anaeróbica',
+  'Maceración carbónica',
+  'Láctica',
+  'Alcohólica',
+] as const;
+
+export const PERFILES_TAZA = [
+  'Chocolate',
+  'Caramelo',
+  'Cítrico',
+  'Frutos Rojos',
+  'Frutas Tropicales',
+  'Floral',
+  'Especiado',
+] as const;
+
+export const CERTIFICACIONES = [
+  'Organic',
+  'FairTrade',
+  'Rainforest Alliance',
+  '4C',
+  'C.A.F.E. Practices',
+] as const;
+
+export const MANEJO_AGUAS_MIELES = [
+  'Tratamiento con filtros/fosas',
+  'Biodigestor',
+  'Vertimiento directo',
+] as const;

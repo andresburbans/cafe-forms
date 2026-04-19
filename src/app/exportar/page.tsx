@@ -29,7 +29,7 @@ export default function ExportarPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">Exportar Datos</h1>
+        <h1 className="page-title">Exportar datos</h1>
         <p className="page-subtitle">{count} finca{count !== 1 ? 's' : ''} disponible{count !== 1 ? 's' : ''}</p>
       </div>
 

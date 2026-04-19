@@ -82,7 +82,7 @@ export default function HomePage() {
       {/* Quick Actions */}
       <div className="mb-lg">
         <Link href="/encuesta/nueva" className="btn btn-primary btn-block btn-lg" id="btn-new-survey">
-          Nueva Encuesta de Finca
+          Nueva encuesta de finca
         </Link>
       </div>
 

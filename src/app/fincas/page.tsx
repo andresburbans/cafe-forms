@@ -21,7 +21,7 @@ export default function FincasPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">Fincas Registradas</h1>
+        <h1 className="page-title">Fincas registradas</h1>
         <p className="page-subtitle">{fincas.length} finca{fincas.length !== 1 ? 's' : ''}</p>
       </div>
 
@@ -39,7 +39,7 @@ export default function FincasPage() {
           <div className="empty-icon"></div>
           <div className="empty-title">Sin fincas</div>
           <div className="empty-desc">No hay fincas con este filtro</div>
-          <Link href="/encuesta/nueva" className="btn btn-primary">+ Nueva Encuesta</Link>
+          <Link href="/encuesta/nueva" className="btn btn-primary">+ Nueva encuesta</Link>
         </div>
       ) : (
         <div className="farm-list">

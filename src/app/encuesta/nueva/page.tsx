@@ -9,6 +9,8 @@ import { Toast, useToast } from '@/components/Toast';
 import {
   VARIEDADES_CAFE, METODOS_BENEFICIO, UBICACION_CONSERVACION,
   CULTIVOS_SOMBRA, MANEJO_AGRONOMICO, FOTO_TIPOS,
+  ROLES_INFORMANTE, GENERO_LIDERAZGO, INFRAESTRUCTURA_SECADO,
+  TIPOS_FERMENTACION, PERFILES_TAZA, CERTIFICACIONES, MANEJO_AGUAS_MIELES
 } from '@/lib/constants';
 import MonthRangeSelector from '@/components/MonthRangeSelector';
 
@@ -22,15 +24,25 @@ function todayStr() {
 
 const emptyForm = (): Omit<Finca, 'id' | 'createdAt' | 'updatedAt'> => ({
   surveyorId: 0, fechaVisita: todayStr(), idFincaOficina: '',
+  timestamp_inicio: new Date().toISOString(), timestamp_fin: null,
+  sync_status: null, accuracy_gps: null, rol_informante: '',
+  nombreCaficultor: '', nombreFinca: '', departamento: '', municipio: '', vereda: '',
+  whatsapp: '', correo: '', instagram: '', facebook: '',
+  genero_liderazgo: '', historia_finca: '',
   altitud: null, altitudElipsoidal: null, altitudMSNM: null,
   anosTradicion: null, areaTotalHa: null, areaCafeHa: null,
   cosechaPrincipalIni: null, cosechaPrincipalFin: null,
   cosechaMitacaIni: null, cosechaMitacaFin: null,
+  produccion_anual_kg: null, edad_promedio_cafetales: null,
+  infraestructura_secado: [], otraInfraestructuraSecado: '',
   puntajeSCA: null, sinMedicionFormal: false,
   variedades: [], otraVariedad: '', metodosBeneficio: [],
+  tipos_fermentacion: [], otroTipoFermentacion: '',
+  perfil_taza: [], otroPerfilTaza: '',
+  certificaciones: [], otraCertificacion: '',
   ubicacionConservacion: '', nombreZonaConservacion: '',
   areaBosqueHa: null, numFuentesHidricas: null,
-  cultivosSombra: [], otroCultivoSombra: '', manejoAgronomico: '',
+  cultivosSombra: [], otroCultivoSombra: '', manejo_aguas_mieles: '', otroManejoAguasMieles: '', fauna_biodiversidad: '',
   gpsLat: null, gpsLong: null, gpsAlt: null, gpsPrecision: null,
   consentimientoImagen: false, observaciones: '',
   status: 'borrador',
@@ -53,7 +65,7 @@ export default function NuevaEncuestaPage() {
     setForm((prev) => ({ ...prev, [key]: val }));
   }, []);
 
-  const toggleArray = useCallback((key: 'variedades' | 'metodosBeneficio' | 'cultivosSombra', val: string) => {
+  const toggleArray = useCallback((key: 'variedades' | 'metodosBeneficio' | 'cultivosSombra' | 'infraestructura_secado' | 'tipos_fermentacion' | 'perfil_taza' | 'certificaciones', val: string) => {
     setForm((prev) => {
       const arr = prev[key] as string[];
       return { ...prev, [key]: arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val] };
@@ -87,7 +99,7 @@ export default function NuevaEncuestaPage() {
 
       // Find sample with best accuracy
       const best = samples.reduce((prev, curr) => (curr.accuracy < prev.accuracy ? curr : prev), samples[0]);
-      
+
       const lat = parseFloat(best.latitude.toFixed(7));
       const lon = parseFloat(best.longitude.toFixed(7));
       const alt = best.altitude ? parseFloat(best.altitude.toFixed(1)) : null;
@@ -145,8 +157,13 @@ export default function NuevaEncuestaPage() {
     setSaving(true);
     try {
       const now = new Date();
+      const finalForm = {
+        ...form,
+        timestamp_fin: now.toISOString(),
+        sync_status: navigator.onLine ? 'online' : 'offline',
+      };
       const fincaId = await db.fincas.add({
-        ...form, surveyorId: surveyor.id!, status, createdAt: now, updatedAt: now,
+        ...finalForm, surveyorId: surveyor.id!, status, createdAt: now, updatedAt: now,
       } as Finca) as number;
       for (const photo of photos) {
         await db.fotos.add({
@@ -177,7 +194,7 @@ export default function NuevaEncuestaPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">Nueva Encuesta</h1>
+        <h1 className="page-title">Nueva encuesta</h1>
         <p className="page-subtitle">{STEPS[step]} ({step + 1}/{STEPS.length})</p>
       </div>
 
@@ -191,7 +208,7 @@ export default function NuevaEncuestaPage() {
       {/* Step 0: Metadatos */}
       {step === 0 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">0</span><span className="section-title">Metadatos del Levantamiento</span></div>
+          <div className="section-header"><span className="section-number">0</span><span className="section-title">Información general</span></div>
           <div className="form-group">
             <label className="form-label">Encuestador</label>
             <input className="form-input" value={surveyor.nombre} disabled />
@@ -202,8 +219,23 @@ export default function NuevaEncuestaPage() {
               <input id="fecha-visita" className="form-input" value={form.fechaVisita} onChange={(e) => set('fechaVisita', e.target.value)} placeholder="DD/MM/AAAA" />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="id-finca-oficina">ID Finca (Oficina)</label>
+              <label className="form-label" htmlFor="id-finca-oficina">ID finca (oficina)</label>
               <input id="id-finca-oficina" className="form-input" value={form.idFincaOficina} onChange={(e) => set('idFincaOficina', e.target.value)} placeholder="FNC-001" />
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Rol del informante</label>
+            <div className="chip-group">
+              {ROLES_INFORMANTE.map((rol) => (
+                <button
+                  key={rol}
+                  type="button"
+                  className={`chip ${form.rol_informante === rol ? 'active' : ''}`}
+                  onClick={() => set('rol_informante', rol)}
+                >
+                  {rol}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -212,7 +244,7 @@ export default function NuevaEncuestaPage() {
       {/* Step 1: Perfil y Ubicación */}
       {step === 1 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">1</span><span className="section-title">Perfil del Caficultor y Ubicación</span></div>
+          <div className="section-header"><span className="section-number">1</span><span className="section-title">Perfil del caficultor y ubicación</span></div>
           <div className="form-group">
             <label className="form-label" htmlFor="nombre-caficultor">Nombre completo del caficultor(a)</label>
             <input id="nombre-caficultor" className="form-input" value={form.nombreCaficultor} onChange={(e) => set('nombreCaficultor', e.target.value)} placeholder="Nombre completo" />
@@ -223,9 +255,15 @@ export default function NuevaEncuestaPage() {
           </div>
           <div className="row-2">
             <div className="form-group">
+              <label className="form-label" htmlFor="departamento">Departamento</label>
+              <input id="departamento" className="form-input" value={form.departamento} onChange={(e) => set('departamento', e.target.value)} />
+            </div>
+            <div className="form-group">
               <label className="form-label" htmlFor="municipio">Municipio</label>
               <input id="municipio" className="form-input" value={form.municipio} onChange={(e) => set('municipio', e.target.value)} />
             </div>
+          </div>
+          <div className="row-2">
             <div className="form-group">
               <label className="form-label" htmlFor="vereda">Vereda/Corregimiento</label>
               <input id="vereda" className="form-input" value={form.vereda} onChange={(e) => set('vereda', e.target.value)} />
@@ -237,13 +275,57 @@ export default function NuevaEncuestaPage() {
               <input id="anos-tradicion" className="form-input" type="number" value={form.anosTradicion ?? ''} onChange={(e) => set('anosTradicion', e.target.value ? Number(e.target.value) : null)} />
             </div>
           </div>
+
+          <div className="form-group">
+            <label className="form-label">Género / Liderazgo</label>
+            <div className="chip-group">
+              {GENERO_LIDERAZGO.map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  className={`chip ${form.genero_liderazgo === g ? 'active' : ''}`}
+                  onClick={() => set('genero_liderazgo', g)}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-label mt-md mb-sm">Contacto y redes sociales</div>
+          <div className="row-2">
+            <div className="form-group">
+              <label className="form-label" htmlFor="whatsapp">WhatsApp</label>
+              <input id="whatsapp" className="form-input" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="+57 300 000 0000" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="correo">Correo Electrónico</label>
+              <input id="correo" className="form-input" type="email" value={form.correo} onChange={(e) => set('correo', e.target.value)} placeholder="correo@ejemplo.com" />
+            </div>
+          </div>
+          <div className="row-2">
+            <div className="form-group">
+              <label className="form-label" htmlFor="instagram">Instagram</label>
+              <input id="instagram" className="form-input" value={form.instagram} onChange={(e) => set('instagram', e.target.value)} placeholder="@usuario" />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="facebook">Facebook</label>
+              <input id="facebook" className="form-input" value={form.facebook} onChange={(e) => set('facebook', e.target.value)} placeholder="Nombre o Link" />
+            </div>
+          </div>
+
+          <div className="form-group mt-md">
+            <label className="form-label" htmlFor="historia-finca">Historia de la Finca (Storytelling)</label>
+            <textarea id="historia-finca" className="form-textarea" value={form.historia_finca} onChange={(e) => set('historia_finca', e.target.value)} maxLength={5000} placeholder="Breve historia familiar o de la finca..." />
+            <p className="form-hint" style={{ textAlign: 'right' }}>{form.historia_finca.length}/5000</p>
+          </div>
         </div>
       )}
 
       {/* Step 2: Dimensiones */}
       {step === 2 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">2</span><span className="section-title">Dimensiones y Capacidad</span></div>
+          <div className="section-header"><span className="section-number">2</span><span className="section-title">Dimensiones y capacidad</span></div>
           <div className="row-2">
             <div className="form-group">
               <label className="form-label" htmlFor="area-total">Área total (ha)</label>
@@ -254,13 +336,13 @@ export default function NuevaEncuestaPage() {
               <input id="area-cafe" className="form-input" type="number" step="0.1" value={form.areaCafeHa ?? ''} onChange={(e) => set('areaCafeHa', e.target.value ? Number(e.target.value) : null)} />
             </div>
           </div>
-          <MonthRangeSelector 
+          <MonthRangeSelector
             label="Meses cosecha principal"
             startMonth={form.cosechaPrincipalIni}
             endMonth={form.cosechaPrincipalFin}
             onChange={(start, end) => { set('cosechaPrincipalIni', start); set('cosechaPrincipalFin', end); }}
           />
-          <MonthRangeSelector 
+          <MonthRangeSelector
             label="Meses mitaca (Opcional)"
             startMonth={form.cosechaMitacaIni}
             endMonth={form.cosechaMitacaFin}
@@ -268,15 +350,24 @@ export default function NuevaEncuestaPage() {
           />
           <div className="row-2">
             <div className="form-group">
-              <label className="form-label" htmlFor="puntaje-sca">Puntaje SCA</label>
-              <input id="puntaje-sca" className="form-input" type="number" step="0.5" value={form.puntajeSCA ?? ''} onChange={(e) => set('puntajeSCA', e.target.value ? Number(e.target.value) : null)} disabled={form.sinMedicionFormal} />
+              <label className="form-label" htmlFor="produccion-anual">Producción anual estimada (kg/cargas)</label>
+              <input id="produccion-anual" className="form-input" type="number" step="0.1" value={form.produccion_anual_kg ?? ''} onChange={(e) => set('produccion_anual_kg', e.target.value ? Number(e.target.value) : null)} />
             </div>
-            <div className="form-group" style={{ display: 'flex', alignItems: 'end' }}>
-              <label className="check-item" style={{ width: '100%' }}>
-                <input type="checkbox" checked={form.sinMedicionFormal} onChange={(e) => { set('sinMedicionFormal', e.target.checked); if (e.target.checked) set('puntajeSCA', null); }} />
-                <span className={form.sinMedicionFormal ? '' : ''}>Sin medición</span>
-              </label>
+            <div className="form-group">
+              <label className="form-label" htmlFor="edad-promedio">Edad promedio cafetales (años)</label>
+              <input id="edad-promedio" className="form-input" type="number" step="0.1" value={form.edad_promedio_cafetales ?? ''} onChange={(e) => set('edad_promedio_cafetales', e.target.value ? Number(e.target.value) : null)} />
             </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Infraestructura de secado</label>
+            <div className="check-group">
+              {INFRAESTRUCTURA_SECADO.map((inf) => (
+                <label key={inf} className={`check-item ${form.infraestructura_secado.includes(inf) ? 'selected' : ''}`}>
+                  <input type="checkbox" checked={form.infraestructura_secado.includes(inf)} onChange={() => toggleArray('infraestructura_secado', inf)} />{inf}
+                </label>
+              ))}
+            </div>
+            <input className="form-input mt-md" placeholder="Otra infraestructura..." value={form.otraInfraestructuraSecado} onChange={(e) => set('otraInfraestructuraSecado', e.target.value)} />
           </div>
         </div>
       )}
@@ -284,7 +375,7 @@ export default function NuevaEncuestaPage() {
       {/* Step 3: Producto */}
       {step === 3 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">3</span><span className="section-title">El Producto</span></div>
+          <div className="section-header"><span className="section-number">3</span><span className="section-title">El café</span></div>
           <div className="form-group">
             <label className="form-label">Variedades cultivadas</label>
             <div className="check-group">
@@ -306,13 +397,58 @@ export default function NuevaEncuestaPage() {
               ))}
             </div>
           </div>
+          <div className="form-group">
+            <label className="form-label">Tipos de fermentación</label>
+            <div className="check-group">
+              {TIPOS_FERMENTACION.map((t) => (
+                <label key={t} className={`check-item ${form.tipos_fermentacion.includes(t) ? 'selected' : ''}`}>
+                  <input type="checkbox" checked={form.tipos_fermentacion.includes(t)} onChange={() => toggleArray('tipos_fermentacion', t)} />{t}
+                </label>
+              ))}
+            </div>
+            <input className="form-input mt-md" placeholder="Otro tipo..." value={form.otroTipoFermentacion} onChange={(e) => set('otroTipoFermentacion', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Perfil de taza (notas de cata)</label>
+            <p className="form-hint mb-md">Selecciona las notas predominantes en taza.</p>
+            <div className="check-group">
+              {PERFILES_TAZA.map((p) => (
+                <label key={p} className={`check-item ${form.perfil_taza.includes(p) ? 'selected' : ''}`}>
+                  <input type="checkbox" checked={form.perfil_taza.includes(p)} onChange={() => toggleArray('perfil_taza', p)} />{p}
+                </label>
+              ))}
+            </div>
+            <input className="form-input mt-md" placeholder="Otra nota de cata..." value={form.otroPerfilTaza} onChange={(e) => set('otroPerfilTaza', e.target.value)} />
+          </div>
+          <div className="form-group mt-md">
+            <label className="form-label" htmlFor="puntaje-sca">Puntaje SCA</label>
+            <p className="form-hint mb-md">Calificación oficial de calidad en taza (0-100). Si no tiene evaluación formal, marca la casilla.</p>
+            <div className="row-2">
+              <input id="puntaje-sca" className="form-input" type="number" step="0.5" value={form.puntajeSCA ?? ''} onChange={(e) => set('puntajeSCA', e.target.value ? Number(e.target.value) : null)} disabled={form.sinMedicionFormal} placeholder="Ej: 84.5" />
+              <label className="check-item" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <input type="checkbox" checked={form.sinMedicionFormal} onChange={(e) => { set('sinMedicionFormal', e.target.checked); if (e.target.checked) set('puntajeSCA', null); }} />
+                <span>Sin medición oficial</span>
+              </label>
+            </div>
+          </div>
+          <div className="form-group mt-md">
+            <label className="form-label">Certificaciones</label>
+            <div className="check-group">
+              {CERTIFICACIONES.map((c) => (
+                <label key={c} className={`check-item ${form.certificaciones.includes(c) ? 'selected' : ''}`}>
+                  <input type="checkbox" checked={form.certificaciones.includes(c)} onChange={() => toggleArray('certificaciones', c)} />{c}
+                </label>
+              ))}
+            </div>
+            <input className="form-input mt-md" placeholder="Otra certificación..." value={form.otraCertificacion} onChange={(e) => set('otraCertificacion', e.target.value)} />
+          </div>
         </div>
       )}
 
       {/* Step 4: Conservación */}
       {step === 4 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">4</span><span className="section-title">Conservación y Ambiente</span></div>
+          <div className="section-header"><span className="section-number">4</span><span className="section-title">Conservación y ambiente</span></div>
           <div className="form-group">
             <label className="form-label">Ubicación respecto a zonas de conservación</label>
             {UBICACION_CONSERVACION.map((u) => (
@@ -356,21 +492,42 @@ export default function NuevaEncuestaPage() {
               </label>
             ))}
           </div>
+          <div className="form-group mt-md">
+            <label className="form-label">Manejo de aguas mieles</label>
+            <p className="form-hint mb-md">¿Cómo se tratan las aguas residuales del beneficio?</p>
+            <div className="chip-group">
+              {MANEJO_AGUAS_MIELES.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  className={`chip ${form.manejo_aguas_mieles === m ? 'active' : ''}`}
+                  onClick={() => set('manejo_aguas_mieles', m)}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <input className="form-input mt-md" placeholder="Otro manejo..." value={form.otroManejoAguasMieles} onChange={(e) => set('otroManejoAguasMieles', e.target.value)} />
+          </div>
+          <div className="form-group mt-md">
+            <label className="form-label" htmlFor="fauna-biodiversidad">Fauna y Biodiversidad</label>
+            <textarea id="fauna-biodiversidad" className="form-textarea" value={form.fauna_biodiversidad} onChange={(e) => set('fauna_biodiversidad', e.target.value)} placeholder="Avistamiento de aves, felinos, especies endémicas..." />
+          </div>
         </div>
       )}
 
       {/* Step 5: Fotos y GPS */}
       {step === 5 && (
         <div className="card">
-          <div className="section-header"><span className="section-number">5</span><span className="section-title">Fotos y GPS</span></div>
+          <div className="section-header"><span className="section-number">5</span><span className="section-title">Geodata y multimedia</span></div>
           <div className="form-group">
-            <label className="form-label">Coordenadas GPS y Altitud</label>
+            <label className="form-label">Coordenadas GPS y altitud</label>
             <p className="form-hint mb-md">Nota: Para asegurar calidad de la coordenada, se capturará por 10 segundos.</p>
             <button type="button" className="gps-btn-premium" onClick={captureGPS} disabled={gpsLoading}>
               <span className={`gps-indicator ${gpsLoading ? 'scanning' : ''}`} />
               {gpsLoading ? 'Calibrando precisión...' : 'Capturar Coordenada'}
             </button>
-            
+
             {(form.gpsLat !== null || gpsLoading) && (
               <div className="gps-result-card mt-md">
                 <div className="gps-row">

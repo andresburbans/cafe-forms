@@ -8,10 +8,22 @@ interface ExportRow {
   encuestador: string;
   fechaVisita: string;
   idFincaOficina: string;
+  timestamp_inicio: string | null;
+  timestamp_fin: string | null;
+  sync_status: string | null;
+  accuracy_gps: number | null;
+  rol_informante: string;
   nombreCaficultor: string;
   nombreFinca: string;
+  departamento: string;
   municipio: string;
   vereda: string;
+  whatsapp: string;
+  correo: string;
+  instagram: string;
+  facebook: string;
+  genero_liderazgo: string;
+  historia_finca: string;
   altitud: number | null;
   anosTradicion: number | null;
   areaTotalHa: number | null;
@@ -20,11 +32,21 @@ interface ExportRow {
   cosechaPrincipalFin: number | null;
   cosechaMitacaIni: number | null;
   cosechaMitacaFin: number | null;
+  produccion_anual_kg: number | null;
+  edad_promedio_cafetales: number | null;
+  infraestructura_secado: string;
+  otraInfraestructuraSecado: string;
   puntajeSCA: number | null;
   sinMedicionFormal: string;
   variedades: string;
   otraVariedad: string;
   metodosBeneficio: string;
+  tipos_fermentacion: string;
+  otroTipoFermentacion: string;
+  perfil_taza: string;
+  otroPerfilTaza: string;
+  certificaciones: string;
+  otraCertificacion: string;
   ubicacionConservacion: string;
   nombreZonaConservacion: string;
   areaBosqueHa: number | null;
@@ -32,6 +54,9 @@ interface ExportRow {
   cultivosSombra: string;
   otroCultivoSombra: string;
   manejoAgronomico: string;
+  manejo_aguas_mieles: string;
+  otroManejoAguasMieles: string;
+  fauna_biodiversidad: string;
   gpsLat: number | null;
   gpsLong: number | null;
   consentimientoImagen: string;
@@ -59,10 +84,22 @@ async function buildRows(): Promise<ExportRow[]> {
       encuestador: surveyor?.nombre || 'N/A',
       fechaVisita: f.fechaVisita,
       idFincaOficina: f.idFincaOficina,
+      timestamp_inicio: f.timestamp_inicio,
+      timestamp_fin: f.timestamp_fin,
+      sync_status: f.sync_status,
+      accuracy_gps: f.accuracy_gps,
+      rol_informante: f.rol_informante,
       nombreCaficultor: f.nombreCaficultor,
       nombreFinca: f.nombreFinca,
+      departamento: f.departamento,
       municipio: f.municipio,
       vereda: f.vereda,
+      whatsapp: f.whatsapp,
+      correo: f.correo,
+      instagram: f.instagram,
+      facebook: f.facebook,
+      genero_liderazgo: f.genero_liderazgo,
+      historia_finca: f.historia_finca,
       altitud: f.altitud,
       anosTradicion: f.anosTradicion,
       areaTotalHa: f.areaTotalHa,
@@ -71,11 +108,21 @@ async function buildRows(): Promise<ExportRow[]> {
       cosechaPrincipalFin: f.cosechaPrincipalFin,
       cosechaMitacaIni: f.cosechaMitacaIni,
       cosechaMitacaFin: f.cosechaMitacaFin,
+      produccion_anual_kg: f.produccion_anual_kg,
+      edad_promedio_cafetales: f.edad_promedio_cafetales,
+      infraestructura_secado: f.infraestructura_secado.join(', '),
+      otraInfraestructuraSecado: f.otraInfraestructuraSecado,
       puntajeSCA: f.puntajeSCA,
       sinMedicionFormal: f.sinMedicionFormal ? 'Sí' : 'No',
       variedades: f.variedades.join(', '),
       otraVariedad: f.otraVariedad,
       metodosBeneficio: f.metodosBeneficio.join(', '),
+      tipos_fermentacion: f.tipos_fermentacion.join(', '),
+      otroTipoFermentacion: f.otroTipoFermentacion,
+      perfil_taza: f.perfil_taza.join(', '),
+      otroPerfilTaza: f.otroPerfilTaza,
+      certificaciones: f.certificaciones.join(', '),
+      otraCertificacion: f.otraCertificacion,
       ubicacionConservacion: f.ubicacionConservacion,
       nombreZonaConservacion: f.nombreZonaConservacion,
       areaBosqueHa: f.areaBosqueHa,
@@ -83,6 +130,9 @@ async function buildRows(): Promise<ExportRow[]> {
       cultivosSombra: f.cultivosSombra.join(', '),
       otroCultivoSombra: f.otroCultivoSombra,
       manejoAgronomico: f.manejoAgronomico,
+      manejo_aguas_mieles: f.manejo_aguas_mieles,
+      otroManejoAguasMieles: f.otroManejoAguasMieles,
+      fauna_biodiversidad: f.fauna_biodiversidad,
       gpsLat: f.gpsLat,
       gpsLong: f.gpsLong,
       consentimientoImagen: f.consentimientoImagen ? 'Sí' : 'No',

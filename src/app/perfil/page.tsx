@@ -28,7 +28,7 @@ export default function PerfilPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">Perfil del Encuestador</h1>
+        <h1 className="page-title">Perfil del encuestador</h1>
         <p className="page-subtitle">Datos locales. Se asocian a cada encuesta.</p>
       </div>
       <form onSubmit={handleSubmit}>
@@ -49,7 +49,7 @@ export default function PerfilPage() {
             <label className="form-label" htmlFor="prof-org">Organización</label>
             <input id="prof-org" className="form-input" type="text" value={form.organizacion} onChange={(e) => setForm({ ...form, organizacion: e.target.value })} placeholder="Cooperativa / Empresa" />
           </div>
-          <button type="submit" className="btn btn-primary btn-block btn-lg" id="btn-save-profile">Guardar Perfil</button>
+          <button type="submit" className="btn btn-primary btn-block btn-lg" id="btn-save-profile">Guardar perfil</button>
         </div>
       </form>
       {surveyor && (
