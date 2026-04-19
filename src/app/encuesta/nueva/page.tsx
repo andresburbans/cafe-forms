@@ -425,7 +425,7 @@ export default function NuevaEncuestaPage() {
             <p className="form-hint mb-md">Calificación oficial de calidad en taza (0-100). Si no tiene evaluación formal, marca la casilla.</p>
             <div className="row-2">
               <input id="puntaje-sca" className="form-input" type="number" step="0.5" value={form.puntajeSCA ?? ''} onChange={(e) => set('puntajeSCA', e.target.value ? Number(e.target.value) : null)} disabled={form.sinMedicionFormal} placeholder="Ej: 84.5" />
-              <label className="check-item" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <label className={`check-item ${form.sinMedicionFormal ? 'selected' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <input type="checkbox" checked={form.sinMedicionFormal} onChange={(e) => { set('sinMedicionFormal', e.target.checked); if (e.target.checked) set('puntajeSCA', null); }} />
                 <span>Sin medición oficial</span>
               </label>
