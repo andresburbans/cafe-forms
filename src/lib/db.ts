@@ -27,8 +27,10 @@ export interface Finca {
   // Sección 2
   areaTotalHa: number | null;
   areaCafeHa: number | null;
-  mesesCosecha: string;
-  mesesMitaca: string;
+  cosechaPrincipalIni: number | null; // 0-11 (Ene-Dic)
+  cosechaPrincipalFin: number | null;
+  cosechaMitacaIni: number | null;
+  cosechaMitacaFin: number | null;
   puntajeSCA: number | null;
   sinMedicionFormal: boolean;
   // Sección 3

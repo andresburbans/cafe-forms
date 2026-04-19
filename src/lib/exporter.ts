@@ -16,8 +16,10 @@ interface ExportRow {
   anosTradicion: number | null;
   areaTotalHa: number | null;
   areaCafeHa: number | null;
-  mesesCosecha: string;
-  mesesMitaca: string;
+  cosechaPrincipalIni: number | null;
+  cosechaPrincipalFin: number | null;
+  cosechaMitacaIni: number | null;
+  cosechaMitacaFin: number | null;
   puntajeSCA: number | null;
   sinMedicionFormal: string;
   variedades: string;
@@ -65,8 +67,10 @@ async function buildRows(): Promise<ExportRow[]> {
       anosTradicion: f.anosTradicion,
       areaTotalHa: f.areaTotalHa,
       areaCafeHa: f.areaCafeHa,
-      mesesCosecha: f.mesesCosecha,
-      mesesMitaca: f.mesesMitaca,
+      cosechaPrincipalIni: f.cosechaPrincipalIni,
+      cosechaPrincipalFin: f.cosechaPrincipalFin,
+      cosechaMitacaIni: f.cosechaMitacaIni,
+      cosechaMitacaFin: f.cosechaMitacaFin,
       puntajeSCA: f.puntajeSCA,
       sinMedicionFormal: f.sinMedicionFormal ? 'Sí' : 'No',
       variedades: f.variedades.join(', '),

@@ -10,6 +10,7 @@ import {
   VARIEDADES_CAFE, METODOS_BENEFICIO, UBICACION_CONSERVACION,
   CULTIVOS_SOMBRA, MANEJO_AGRONOMICO, FOTO_TIPOS,
 } from '@/lib/constants';
+import MonthRangeSelector from '@/components/MonthRangeSelector';
 
 const STEPS = ['Metadatos', 'Perfil y Ubicación', 'Dimensiones', 'Producto', 'Conservación', 'Fotos y GPS'];
 const MAX_PHOTOS = 20;
@@ -23,7 +24,9 @@ const emptyForm = (): Omit<Finca, 'id' | 'createdAt' | 'updatedAt'> => ({
   surveyorId: 0, fechaVisita: todayStr(), idFincaOficina: '',
   altitud: null, altitudElipsoidal: null, altitudMSNM: null,
   anosTradicion: null, areaTotalHa: null, areaCafeHa: null,
-  mesesCosecha: '', mesesMitaca: '', puntajeSCA: null, sinMedicionFormal: false,
+  cosechaPrincipalIni: null, cosechaPrincipalFin: null,
+  cosechaMitacaIni: null, cosechaMitacaFin: null,
+  puntajeSCA: null, sinMedicionFormal: false,
   variedades: [], otraVariedad: '', metodosBeneficio: [],
   ubicacionConservacion: '', nombreZonaConservacion: '',
   areaBosqueHa: null, numFuentesHidricas: null,
@@ -251,14 +254,18 @@ export default function NuevaEncuestaPage() {
               <input id="area-cafe" className="form-input" type="number" step="0.1" value={form.areaCafeHa ?? ''} onChange={(e) => set('areaCafeHa', e.target.value ? Number(e.target.value) : null)} />
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="meses-cosecha">Meses cosecha principal</label>
-            <input id="meses-cosecha" className="form-input" value={form.mesesCosecha} onChange={(e) => set('mesesCosecha', e.target.value)} placeholder="Oct - Dic" />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="meses-mitaca">Meses mitaca</label>
-            <input id="meses-mitaca" className="form-input" value={form.mesesMitaca} onChange={(e) => set('mesesMitaca', e.target.value)} placeholder="Abr - Jun (o N/A)" />
-          </div>
+          <MonthRangeSelector 
+            label="Meses cosecha principal"
+            startMonth={form.cosechaPrincipalIni}
+            endMonth={form.cosechaPrincipalFin}
+            onChange={(start, end) => { set('cosechaPrincipalIni', start); set('cosechaPrincipalFin', end); }}
+          />
+          <MonthRangeSelector 
+            label="Meses mitaca (Opcional)"
+            startMonth={form.cosechaMitacaIni}
+            endMonth={form.cosechaMitacaFin}
+            onChange={(start, end) => { set('cosechaMitacaIni', start); set('cosechaMitacaFin', end); }}
+          />
           <div className="row-2">
             <div className="form-group">
               <label className="form-label" htmlFor="puntaje-sca">Puntaje SCA</label>

@@ -9,6 +9,14 @@ import { MANEJO_AGRONOMICO } from '@/lib/constants';
 
 interface PhotoPreview extends FincaFoto { preview: string; }
 
+const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+function formatRange(ini: number | null | undefined, fin: number | null | undefined): string {
+  if (ini == null) return 'N/A';
+  if (fin == null) return MONTHS[ini];
+  return `${MONTHS[ini]} - ${MONTHS[fin]}`;
+}
+
 export default function FincaDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -105,8 +113,8 @@ export default function FincaDetailPage() {
           <Field label="Área café (ha)" value={finca.areaCafeHa} />
         </div>
         <div className="row-2">
-          <Field label="Cosecha principal" value={finca.mesesCosecha} />
-          <Field label="Mitaca" value={finca.mesesMitaca} />
+          <Field label="Cosecha principal" value={formatRange(finca.cosechaPrincipalIni, finca.cosechaPrincipalFin)} />
+          <Field label="Mitaca" value={formatRange(finca.cosechaMitacaIni, finca.cosechaMitacaFin)} />
         </div>
         <Field label="Puntaje SCA" value={finca.sinMedicionFormal ? 'Sin medición formal' : finca.puntajeSCA} />
       </div>
