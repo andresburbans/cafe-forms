@@ -44,7 +44,7 @@ export default function FincasPage() {
       ) : (
         <div className="farm-list">
           {fincas.map((farm) => (
-            <Link href={`/fincas/${farm.id}`} className="farm-item" key={farm.id}>
+            <Link href={`/fincas/ver?id=${farm.id}`} className="farm-item" key={farm.id}>
               <div className="farm-info">
                 <div className="farm-name">{farm.nombreFinca || 'Sin nombre'}</div>
                 <div className="farm-meta">{farm.nombreCaficultor} · {farm.municipio}</div>

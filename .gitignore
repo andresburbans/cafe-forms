@@ -12,6 +12,16 @@
 
 # testing
 /coverage
+/secrets
+firebase.json
+firebase.js
+claude.md
+CLAUDE.md
+.claude
+.firebaserc
+firebase-debug.log*
+.firebase/
+
 
 # next.js
 /.next/

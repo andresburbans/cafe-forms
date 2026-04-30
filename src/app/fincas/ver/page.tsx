@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { db, type Finca, type FincaFoto, type Surveyor } from '@/lib/db';
 import { blobToDataURL } from '@/lib/imageCompressor';
 import { Toast, useToast } from '@/components/Toast';
 import { MANEJO_AGRONOMICO } from '@/lib/constants';
+import { Suspense } from 'react';
 
 interface PhotoPreview extends FincaFoto { preview: string; }
 
@@ -17,8 +18,8 @@ function formatRange(ini: number | null | undefined, fin: number | null | undefi
   return `${MONTHS[ini]} - ${MONTHS[fin]}`;
 }
 
-export default function FincaDetailPage() {
-  const params = useParams();
+function FincaDetailContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast, showToast } = useToast();
   const [finca, setFinca] = useState<Finca | null>(null);
@@ -26,10 +27,11 @@ export default function FincaDetailPage() {
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const id = Number(params.id);
+  const id = Number(searchParams.get('id'));
 
   useEffect(() => {
     async function load() {
+      if (!id) { setLoading(false); return; }
       const f = await db.fincas.get(id);
       if (!f) { setLoading(false); return; }
       setFinca(f);
@@ -195,5 +197,13 @@ export default function FincaDetailPage() {
 
       {toast && <Toast message={toast} />}
     </>
+  );
+}
+
+export default function FincaDetailPage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-lg">Cargando...</div>}>
+      <FincaDetailContent />
+    </Suspense>
   );
 }

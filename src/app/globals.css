@@ -300,6 +300,17 @@ a:hover {
   letter-spacing: 0.05em;
 }
 
+/* Hide number input spinners */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .form-input,
 .form-select,
 .form-textarea {
@@ -523,9 +534,17 @@ a:hover {
 }
 
 .btn-secondary {
-  background: var(--color-bg-card);
+  background: var(--color-bg-card-hover);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -988,8 +1007,10 @@ a:hover {
 
 .gap-sm { gap: var(--space-sm); }
 .gap-md { gap: var(--space-md); }
+.mt-sm { margin-top: var(--space-sm); }
 .mt-md { margin-top: var(--space-md); }
 .mt-lg { margin-top: var(--space-lg); }
+.mb-sm { margin-bottom: var(--space-sm); }
 .mb-md { margin-bottom: var(--space-md); }
 .mb-lg { margin-bottom: var(--space-lg); }
 .text-center { text-align: center; }
@@ -1014,4 +1035,42 @@ a:hover {
   font-size: 0.8rem;
   color: var(--color-danger);
   animation: pulse-bar 2s ease-in-out infinite;
+}
+
+/* ── Autocomplete Dropdown ───────────────────────── */
+
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-accent-dark);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  box-shadow: var(--shadow-lg);
+  animation: slide-up var(--transition-fast);
+}
+
+.autocomplete-item {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background: var(--color-accent-glow);
+  color: var(--color-accent-light);
 }

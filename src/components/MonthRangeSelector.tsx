@@ -46,12 +46,12 @@ export default function MonthRangeSelector({ label, startMonth, endMonth, onChan
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <label className="form-label" style={{ marginBottom: 0 }}>{label}</label>
         {allowClear && (startMonth !== null) && (
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => onChange(null, null)}
-            style={{ 
-              background: 'none', border: 'none', color: 'var(--color-text-muted)', 
-              fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' 
+            style={{
+              background: 'none', border: 'none', color: 'var(--color-text-muted)',
+              fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline'
             }}
           >
             Limpiar
@@ -74,7 +74,7 @@ export default function MonthRangeSelector({ label, startMonth, endMonth, onChan
           );
         })}
       </div>
-      <p className="form-hint">Toca un mes de inicio y luego el mes de fin.</p>
+      <p className="form-hint">Estos periodos nos ayudan a entender cuando tienes cafe disponible para la venta. Toca un mes de inicio y luego el mes de fin.</p>
     </div>
   );
 }
