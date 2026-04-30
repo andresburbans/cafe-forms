@@ -64,6 +64,7 @@ export default function NuevaEncuestaPage() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const set = useCallback(<K extends keyof typeof form>(key: K, val: (typeof form)[K]) => {
@@ -78,87 +79,74 @@ export default function NuevaEncuestaPage() {
   }, []);
 
   // GPS capture with 10s averaging logic
-  const captureGPS = async () => {
-    if (!navigator.geolocation) { showToast('GPS no disponible'); return; }
+  const captureGPS = async (isAuto = false): Promise<boolean> => {
+    if (!navigator.geolocation) { showToast('GPS no disponible'); return false; }
     setGpsLoading(true);
-    showToast('Calibrando sensores y GPS (10 seg)...');
+    if (!isAuto) showToast('Calibrando sensores y GPS (10 seg)...');
 
-    // Intentar captura de barómetro (si el dispositivo lo permite)
-    try {
-      if ('PressureSensor' in window) {
-        // @ts-ignore
-        const sensor = new PressureSensor({ frequency: 1 });
-        sensor.onreading = () => {
-          set('presionAtmosferica', parseFloat(sensor.pressure.toFixed(2)));
-          sensor.stop();
-        };
-        sensor.start();
-      }
-    } catch (e) {}
-
-    // Intentar captura de luz ambiental
-    try {
-      if ('AmbientLightSensor' in window) {
-        // @ts-ignore
-        const light = new AmbientLightSensor();
-        light.onreading = () => {
-          set('iluminacionAmbiental', light.illuminance);
-          light.stop();
-        };
-        light.start();
-      }
-    } catch (e) {}
-
-    const samples: GeolocationCoordinates[] = [];
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        samples.push(pos.coords);
-      },
-      (err) => console.warn('GPS Error:', err.message),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-
-    // Stop after 10 seconds
-    setTimeout(async () => {
-      navigator.geolocation.clearWatch(watchId);
-      setGpsLoading(false);
-
-      if (samples.length === 0) {
-        showToast('No se capturaron muestras de GPS');
-        return;
-      }
-
-      // Ordenar por precisión y tomar la mejor muestra
-      const best = samples.sort((a, b) => a.accuracy - b.accuracy)[0];
-
-      const lat = parseFloat(best.latitude.toFixed(7));
-      const lon = parseFloat(best.longitude.toFixed(7));
-      const alt = best.altitude !== null ? parseFloat(best.altitude.toFixed(1)) : null;
-      const precision = parseFloat(best.accuracy.toFixed(1));
-
-      set('gpsLat', lat);
-      set('gpsLong', lon);
-      set('gpsAlt', alt);
-      set('gpsPrecision', precision);
-      set('altitudElipsoidal', alt);
-
-      showToast(`Geodata fijada (±${precision}m)`);
-
-      // Try to get MSNM via Open-Elevation (if online)
-      if (navigator.onLine) {
-        try {
-          const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`);
-          const data = await res.json();
-          if (data.results?.[0]?.elevation) {
-            const msnm = Math.round(data.results[0].elevation);
-            set('altitudMSNM', msnm);
-            set('altitud', msnm);
-          }
-        } catch (e) {
-          console.error('Elevation API error:', e);
+    // Captura de sensores (Barómetro y Luz)
+    const tryCaptureSensors = () => {
+      try {
+        if ('PressureSensor' in window) {
+          // @ts-ignore
+          const sensor = new PressureSensor({ frequency: 1 });
+          sensor.onreading = () => { set('presionAtmosferica', parseFloat(sensor.pressure.toFixed(2))); sensor.stop(); };
+          sensor.start();
         }
-      }
-    }, 10000);
+        if ('AmbientLightSensor' in window) {
+          // @ts-ignore
+          const light = new AmbientLightSensor();
+          light.onreading = () => { set('iluminacionAmbiental', light.illuminance); light.stop(); };
+          light.start();
+        }
+      } catch (e) { }
+    };
+    tryCaptureSensors();
+
+    return new Promise((resolve) => {
+      const samples: GeolocationCoordinates[] = [];
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => samples.push(pos.coords),
+        (err) => console.warn('GPS Error:', err.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+
+      setTimeout(async () => {
+        navigator.geolocation.clearWatch(watchId);
+        setGpsLoading(false);
+
+        if (samples.length === 0) {
+          if (!isAuto) showToast('No se capturaron muestras de GPS');
+          resolve(false);
+          return;
+        }
+
+        const best = samples.sort((a, b) => a.accuracy - b.accuracy)[0];
+        const lat = parseFloat(best.latitude.toFixed(7));
+        const lon = parseFloat(best.longitude.toFixed(7));
+        const alt = best.altitude !== null ? parseFloat(best.altitude.toFixed(1)) : null;
+        const precision = parseFloat(best.accuracy.toFixed(1));
+
+        setForm(prev => ({
+          ...prev,
+          gpsLat: lat, gpsLong: lon, gpsAlt: alt, gpsPrecision: precision, altitudElipsoidal: alt
+        }));
+
+        if (!isAuto) showToast(`Geodata fijada (±${precision}m)`);
+
+        if (navigator.onLine) {
+          try {
+            const res = await fetch(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`);
+            const data = await res.json();
+            if (data.results?.[0]?.elevation) {
+              const msnm = Math.round(data.results[0].elevation);
+              setForm(prev => ({ ...prev, altitudMSNM: msnm, altitud: msnm }));
+            }
+          } catch (e) { console.error('Elevation API error:', e); }
+        }
+        resolve(true);
+      }, 10000);
+    });
   };
 
   // Photo capture
@@ -185,29 +173,49 @@ export default function NuevaEncuestaPage() {
   // Save
   const handleSave = async (status: 'borrador' | 'completo') => {
     if (!surveyor?.id) { showToast('Configura tu perfil primero'); return; }
-    if (status === 'completo' && !form.aceptaHabeasData) {
-      showToast('Debes aceptar el tratamiento de datos para finalizar');
-      return;
-    }
     setSaving(true);
+
+    // Captura automática de GPS si es 'completo' y no se ha capturado
+    let currentForm = { ...form };
+    if (status === 'completo' && form.gpsLat === null) {
+      showToast('Fijando ubicación final para el origen...');
+      await captureGPS(true);
+      // Recargar el form actualizado por captureGPS
+      // Nota: captureGPS usa setForm, así que necesitamos una forma de obtener el valor más reciente o confiar en el estado
+    }
+
     try {
       const now = new Date();
-      const finalForm = {
-        ...form,
-        timestamp_fin: now.toISOString(),
-        sync_status: navigator.onLine ? 'online' : 'offline',
-      };
-      const fincaId = await db.fincas.add({
-        ...finalForm, surveyorId: surveyor.id!, status, createdAt: now, updatedAt: now,
-      } as Finca) as number;
+      // Obtenemos el estado más reciente después de captureGPS (usando una función de actualización para asegurar coherencia)
+      let finalFincaData: any = null;
+
+      await setForm(prev => {
+        const updated = {
+          ...prev,
+          timestamp_fin: now.toISOString(),
+          sync_status: (navigator.onLine ? 'online' : 'offline') as any,
+          surveyorId: surveyor.id!,
+          status,
+          createdAt: prev.createdAt || now,
+          updatedAt: now,
+        };
+        finalFincaData = updated;
+        return updated;
+      });
+
+      const fincaId = await db.fincas.add(finalFincaData as Finca) as number;
       for (const photo of photos) {
         await db.fotos.add({
           fincaId: fincaId, tipo: photo.tipo, blob: photo.blob,
           nombre: photo.nombre, tamanioKB: Math.round(photo.blob.size / 1024), createdAt: now,
         });
       }
-      showToast(status === 'completo' ? 'Encuesta guardada' : 'Borrador guardado');
-      setTimeout(() => router.push('/fincas'), 800);
+      if (status === 'completo') {
+        setShowSuccess(true);
+      } else {
+        showToast('Borrador guardado');
+        setTimeout(() => router.push('/fincas'), 800);
+      }
     } catch (err) {
       showToast('Error guardando');
     }
@@ -910,10 +918,10 @@ export default function NuevaEncuestaPage() {
 
           <div className="form-group">
             <label className="form-label">Coordenadas GPS y altitud</label>
-            <p className="form-hint mb-md">Nota: Para asegurar calidad de la coordenada, se capturará por 10 segundos.</p>
+            <p className="form-hint mb-md">Fijar la ubicación exacta nos ayuda a certificar que el café es de tu finca. Presiona el botón y espera unos segundos mientras calibramos la señal.</p>
             <button type="button" className="gps-btn-premium" onClick={captureGPS} disabled={gpsLoading}>
               <span className={`gps-indicator ${gpsLoading ? 'scanning' : ''}`} />
-              {gpsLoading ? 'Calibrando precisión...' : 'Capturar Coordenada'}
+              {gpsLoading ? 'Sincronizando satélites...' : 'Capturar Coordenadas'}
             </button>
 
             {(form.gpsLat !== null || gpsLoading) && (
@@ -937,43 +945,121 @@ export default function NuevaEncuestaPage() {
             )}
           </div>
           <div className="form-group">
-            <label className="form-label">Fotografías ({photos.length}/{MAX_PHOTOS})</label>
-            <p className="form-hint mb-md">1ª=Retrato, 2ª=Panorámica, 3ª=Infraestructura, resto=Extra</p>
-            <div className="photo-grid">
+            <label className="form-label">Álbum fotográfico ({photos.length}/{MAX_PHOTOS})</label>
+            <p className="form-hint mb-md">Captura la esencia de tu trabajo. Sube fotos de tu rostro, de los cafetales y de la infraestructura. ¡Las imágenes ayudan a vender mejor!</p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
               {photos.map((p, i) => (
-                <div key={i} className="photo-thumb">
-                  <img src={p.preview} alt={p.nombre} />
-                  <div className="photo-label">{p.tipo}</div>
-                  <div className="photo-thumb-overlay" onClick={() => removePhoto(i)}>Eliminar</div>
+                <div key={i} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                  <img src={p.preview} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: '0', left: '0', right: '0', backgroundColor: 'rgba(0,0,0,0.7)', padding: '4px', fontSize: '0.6rem', color: '#fff', textAlign: 'center', textTransform: 'capitalize' }}>{p.tipo}</div>
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'rgba(255,0,0,0.8)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
               {photos.length < MAX_PHOTOS && (
-                <div className="photo-add" onClick={() => fileRef.current?.click()}>
-                  <span>Agregar Foto</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  style={{
+                    aspectRatio: '1/1',
+                    borderRadius: '12px',
+                    border: '2px dashed rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.5)',
+                    gap: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>📸</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '600' }}>Añadir foto</span>
+                </button>
               )}
             </div>
             <input ref={fileRef} type="file" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhoto} />
           </div>
-          <div className="form-group" style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)' }}>
-            <label className="check-item" style={{ width: '100%', marginBottom: 'var(--space-sm)' }}>
-              <input type="checkbox" checked={form.consentimientoImagen} onChange={(e) => set('consentimientoImagen', e.target.checked)} />
-              <span style={{ fontWeight: '500' }}>Autorizo el uso de mi imagen y fotos de la finca</span>
-            </label>
-            
-            <label className="check-item" style={{ width: '100%', marginBottom: 'var(--space-sm)' }}>
-              <input type="checkbox" checked={form.aceptaHabeasData} onChange={(e) => set('aceptaHabeasData', e.target.checked)} />
-              <span style={{ fontWeight: '500' }}>Acepto el tratamiento de mis datos personales</span>
-            </label>
-            
-            <button type="button" onClick={() => setShowTerms(true)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontSize: '0.8rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>
-              Leer términos y condiciones (Habeas Data)
-            </button>
+          <div className="form-group">
+            <label className="form-label" htmlFor="observaciones">¿Tienes alguna sugerencia para mejorar?</label>
+            <textarea id="observaciones" className="form-textarea" value={form.observaciones} onChange={(e) => set('observaciones', e.target.value)} placeholder="Dinos cuales son las espectativas que tienes con nuestro proyecto, como podriamos ayudarte, que esperas de el. Agradecemos tus palabras y creatividad." />
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="observaciones">Observaciones finales</label>
-            <textarea id="observaciones" className="form-textarea" value={form.observaciones} onChange={(e) => set('observaciones', e.target.value)} placeholder="¿Algún detalle extra que debamos saber?" />
+          <div style={{ marginTop: 'var(--space-xl)', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 'var(--space-lg)', textAlign: 'center' }}>
+            
+            {/* Botón Principal: Finalizar */}
+            <button 
+              className="btn btn-primary" 
+              onClick={() => handleSave('completo')} 
+              disabled={saving}
+              style={{ 
+                width: '100%',
+                height: '64px', 
+                fontSize: '1.2rem',
+                fontWeight: '700',
+                letterSpacing: '0.5px',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.4)',
+                marginBottom: 'var(--space-md)'
+              }}
+            >
+              {saving ? 'Guardando...' : 'Finalizar Encuesta'}
+            </button>
+
+            {/* Subtexto de Consentimiento Narrativo */}
+            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.4', margin: '0 auto var(--space-xs)', maxWidth: '90%' }}>
+              Al dar clic en <b>Finalizar</b>, autorizas de manera previa y expresa el uso de material fotográfico de la finca y el tratamiento de tus datos personales.
+            </p>
+
+            {/* Botón T&C Estilizado */}
+            <button 
+              type="button" 
+              onClick={() => setShowTerms(true)} 
+              style={{ 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                color: 'var(--color-accent)', 
+                fontSize: '0.75rem', 
+                padding: '6px 12px', 
+                borderRadius: '20px',
+                cursor: 'pointer',
+                marginBottom: 'var(--space-lg)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Leer términos y condiciones Habeas Data
+            </button>
+
+            {/* Botón Secundario: Borrador */}
+            <div style={{ marginBottom: 'var(--space-xl)' }}>
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => handleSave('borrador')} 
+                disabled={saving}
+                style={{ 
+                  height: '48px', 
+                  padding: '0 var(--space-xl)',
+                  fontSize: '0.9rem',
+                  opacity: 0.8
+                }}
+              >
+                Guardar solo como Borrador
+              </button>
+            </div>
+
+            {/* Nota de Agradecimiento Final */}
+            <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', lineHeight: '1.6', margin: 0 }}>
+                Valoramos inmensamente tu tiempo. Los datos recolectados impulsarán el desarrollo de herramientas digitales exclusivas para ti y tus compradores, permitiendo que el mundo entero reconozca y valore la excelencia de tu café.
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -983,12 +1069,6 @@ export default function NuevaEncuestaPage() {
         {step > 0 && <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>Anterior</button>}
         <div style={{ flex: 1 }} />
         {step < STEPS.length - 1 && <button className="btn btn-primary" onClick={() => setStep(step + 1)}>Siguiente</button>}
-        {step === STEPS.length - 1 && (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="btn btn-secondary" onClick={() => handleSave('borrador')} disabled={saving}>Borrador</button>
-            <button className="btn btn-primary" onClick={() => handleSave('completo')} disabled={saving}>Guardar</button>
-          </div>
-        )}
       </div>
 
       {toast && <Toast message={toast} />}
@@ -1000,19 +1080,38 @@ export default function NuevaEncuestaPage() {
             <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)' }}>Tratamiento de Datos Personales</h2>
             <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.9)' }}>
               <p>De conformidad con la <b>Ley 1581 de 2012 (Habeas Data)</b>, yo, en calidad de titular de la información, autorizo de manera libre, previa, expresa e informada a <b>CaféProy</b> para realizar el tratamiento de mis datos personales y de mi unidad productiva (finca).</p>
-              
-              <p style={{ marginTop: 'var(--space-sm)' }}><b>Finalidades:</b><br/>
-              - Caracterización técnica y social del caficultor.<br/>
-              - Promoción comercial y marketing de cafés de especialidad.<br/>
-              - Geolocalización para trazabilidad de origen.<br/>
-              - Uso de material fotográfico para vitrinas comerciales.</p>
 
-              <p style={{ marginTop: 'var(--space-sm)' }}><b>Mis Derechos:</b><br/>
-              Entiendo que puedo conocer, actualizar, rectificar y solicitar la supresión de mis datos en cualquier momento. CaféProy garantiza la seguridad y confidencialidad de la información recolectada mediante protocolos de cifrado local y protección de bases de datos.</p>
-              
+              <p style={{ marginTop: 'var(--space-sm)' }}><b>Finalidades:</b><br />
+                - Caracterización técnica y social del caficultor.<br />
+                - Promoción comercial y marketing de cafés de especialidad.<br />
+                - Geolocalización para trazabilidad de origen.<br />
+                - Uso de material fotográfico para vitrinas comerciales.</p>
+
+              <p style={{ marginTop: 'var(--space-sm)' }}><b>Mis Derechos:</b><br />
+                Entiendo que puedo conocer, actualizar, rectificar y solicitar la supresión de mis datos en cualquier momento. CaféProy garantiza la seguridad y confidencialidad de la información recolectada mediante protocolos de cifrado local y protección de bases de datos.</p>
+
               <p style={{ marginTop: 'var(--space-sm)' }}>Al marcar la casilla de aceptación, confirmo que soy el titular o estoy facultado para entregar esta información y que autorizo el tratamiento bajo los términos aquí descritos.</p>
             </div>
             <button className="btn btn-primary mt-lg" style={{ width: '100%' }} onClick={() => setShowTerms(false)}>Entendido y Cerrar</button>
+          </div>
+        </div>
+      )}
+      {/* Modal Éxito */}
+      {showSuccess && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-lg)' }}>
+          <div className="card" style={{ maxWidth: '400px', textAlign: 'center', padding: 'var(--space-xl)', border: '1px solid var(--color-accent)', boxShadow: '0 0 30px rgba(46, 204, 113, 0.2)' }}>
+            <div style={{ fontSize: '60px', marginBottom: 'var(--space-md)' }}>🎉</div>
+            <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-sm)' }}>¡Encuesta Completada!</h2>
+            <p style={{ color: '#fff', opacity: 0.9, lineHeight: '1.5', marginBottom: 'var(--space-xl)' }}>
+              Muchas gracias por tu valioso tiempo. La información de tu finca ha sido guardada con éxito y servirá para mostrarle al mundo la calidad de tu trabajo.
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', height: '54px', fontSize: '1.1rem' }}
+              onClick={() => router.push('/')}
+            >
+              Volver al Inicio
+            </button>
           </div>
         </div>
       )}
