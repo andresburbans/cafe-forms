@@ -7,11 +7,11 @@ import { Toast, useToast } from '@/components/Toast';
 export default function PerfilPage() {
   const { surveyor, loading, saveSurveyor } = useSurveyor();
   const { toast, showToast } = useToast();
-  const [form, setForm] = useState({ nombre: '', documento: '', telefono: '', organizacion: '' });
+  const [form, setForm] = useState({ nombre: '', email: '', documento: '', telefono: '', organizacion: '' });
   const [initialized, setInitialized] = useState(false);
 
   if (!loading && surveyor && !initialized) {
-    setForm({ nombre: surveyor.nombre, documento: surveyor.documento, telefono: surveyor.telefono, organizacion: surveyor.organizacion });
+    setForm({ nombre: surveyor.nombre, email: surveyor.email || '', documento: surveyor.documento, telefono: surveyor.telefono, organizacion: surveyor.organizacion });
     setInitialized(true);
   }
   if (!loading && !surveyor && !initialized) setInitialized(true);
@@ -19,7 +19,10 @@ export default function PerfilPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nombre.trim()) { showToast('Nombre requerido'); return; }
-    await saveSurveyor(form);
+    await saveSurveyor({
+      ...form,
+      passwordHash: surveyor?.passwordHash || '',
+    });
     showToast('Perfil guardado');
   };
 
@@ -36,6 +39,11 @@ export default function PerfilPage() {
           <div className="form-group">
             <label className="form-label" htmlFor="prof-nombre">Nombre completo *</label>
             <input id="prof-nombre" className="form-input" type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} placeholder="Juan Pérez" required />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="prof-email">Correo electrónico</label>
+            <input id="prof-email" className="form-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="correo@ejemplo.com" disabled />
+            <p className="form-hint">El correo no se puede cambiar desde aquí.</p>
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="prof-doc">Documento / Cédula</label>

@@ -144,7 +144,6 @@ export const FAUNA_BIODIVERSIDAD = [
   'Armadillos',
   'Venados',
   'Guaguas',
-  'Guatines',
   'Zarigüeyas (Chuchas)',
   'Felinos',
   'Zorros',

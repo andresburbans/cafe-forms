@@ -4,6 +4,8 @@ import Dexie, { type EntityTable } from 'dexie';
 export interface Surveyor {
   id?: number;
   nombre: string;
+  email: string;
+  passwordHash: string;
   documento: string;
   telefono: string;
   organizacion: string;
@@ -91,6 +93,7 @@ export interface Finca {
   consentimientoImagen: boolean;
   aceptaHabeasData: boolean;
   observaciones: string;
+  origenEncuesta: 'particular' | 'encuestador';
   // Meta
   createdAt: Date;
   updatedAt: Date;
@@ -120,7 +123,49 @@ class CafeDB extends Dexie {
       fincas: '++id, surveyorId, status, createdAt',
       fotos: '++id, fincaId, tipo',
     });
+    this.version(2).stores({
+      surveyors: '++id, nombre, documento',
+      fincas: '++id, surveyorId, status, createdAt, origenEncuesta',
+      fotos: '++id, fincaId, tipo',
+    });
+    this.version(3).stores({
+      surveyors: '++id, nombre, documento, email',
+      fincas: '++id, surveyorId, status, createdAt, origenEncuesta',
+      fotos: '++id, fincaId, tipo',
+    });
+    this.version(4).stores({
+      surveyors: '++id, nombre, documento, email',
+      fincas: '++id, surveyorId, status, createdAt, origenEncuesta, sync_status',
+      fotos: '++id, fincaId, tipo',
+    });
   }
 }
 
+// ── Console Admin Utility ──────────────────────────
+async function hashPwd(password: string): Promise<string> {
+  const enc = new TextEncoder().encode(password);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 export const db = new CafeDB();
+
+if (typeof window !== 'undefined') {
+  (window as any).cafeAdmin = {
+    addSurveyor: async (data: { nombre: string; email: string; password: string; documento?: string; telefono?: string; organizacion?: string }) => {
+      const existing = await db.surveyors.where('email').equals(data.email).first();
+      if (existing) { console.warn('Ya existe un encuestador con ese email'); return; }
+      const hash = await hashPwd(data.password);
+      const id = await db.surveyors.add({
+        nombre: data.nombre, email: data.email, passwordHash: hash,
+        documento: data.documento || '', telefono: data.telefono || '',
+        organizacion: data.organizacion || '', createdAt: new Date(),
+      });
+      console.log(`Encuestador creado con ID: ${id}`);
+    },
+    listSurveyors: async () => {
+      const all = await db.surveyors.toArray();
+      console.table(all.map(s => ({ id: s.id, nombre: s.nombre, email: s.email, organizacion: s.organizacion })));
+    },
+    hashPassword: hashPwd,
+  };
+}

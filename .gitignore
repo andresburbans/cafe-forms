@@ -35,6 +35,15 @@ firebase-debug.log*
 *.pem
 .agents/
 .agent/
+skills-lock.json
+pnpm-lock.yaml
+tsconfig.tsbuildinfo
+tsconfig.json
+claude.md
+CLAUDE.md
+.claude
+eslint.config.mjs
+
 
 # debug
 npm-debug.log*

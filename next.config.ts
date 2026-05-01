@@ -9,7 +9,9 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   output: 'export',
-  turbopack: {},
+  // NOTE: 'output: export' was re-enabled for static deployment on Firebase Spark.
+  // The PWA still works offline via service worker.
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
 };
 
 export default withSerwist(nextConfig);

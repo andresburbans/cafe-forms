@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Encuestas ────────────────────────────────────────────────────────────
+    match /encuestas/{docId} {
+      // Allow creation of surveys from the client with basic validation
+      allow create: if 
+        request.resource.data.nombreFinca is string &&
+        request.resource.data.nombreCaficultor is string;
+      
+      // Allow reading for authenticated users
+      allow read: if request.auth != null;
+      
+      // Block updates and deletes from the client
+      allow update, delete: if false;
+    }
+
+    // ── Default: Block everything else ───────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

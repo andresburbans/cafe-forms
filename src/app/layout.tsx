@@ -2,15 +2,17 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 import PWAProvider from "@/components/PWAProvider";
+import AuthProvider from "@/components/AuthProvider";
+import SyncManager from "@/components/SyncManager";
 
 export const metadata: Metadata = {
-  title: "CaféProy - Levantamiento de Fincas",
-  description: "Formulario offline para levantamiento de fincas cafeteras. Marketplace de Café de Especialidad.",
+  title: "CaféForms - Conecta tu Café con el Mundo",
+  description: "Plataforma digital para caficultores colombianos. Registra tu finca, crea tu perfil y conecta con compradores internacionales de café de especialidad.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CaféProy",
+    title: "CaféForms",
   },
 };
 
@@ -31,16 +33,19 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>
       <body suppressHydrationWarning>
         <PWAProvider>
-          <div className="app-container">
-            {children}
-          </div>
-          <BottomNav />
+          <AuthProvider>
+            <SyncManager />
+            <div className="app-container">
+              {children}
+            </div>
+            <BottomNav />
+          </AuthProvider>
         </PWAProvider>
       </body>
     </html>

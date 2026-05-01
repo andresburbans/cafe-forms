@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useAuth } from '@/lib/auth';
 
 const NAV_ITEMS = [
   { href: '/', icon: '🏠', label: 'Inicio' },
@@ -15,6 +16,10 @@ const NAV_ITEMS = [
 export default function BottomNav() {
   const pathname = usePathname();
   const isOnline = useOnlineStatus();
+  const { isAuthenticated } = useAuth();
+
+  // Only show navbar for authenticated encuestadores
+  if (!isAuthenticated) return null;
 
   return (
     <>
