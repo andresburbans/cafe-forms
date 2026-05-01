@@ -11,7 +11,7 @@ import {
   VARIEDADES_CAFE, METODOS_BENEFICIO, UBICACION_CONSERVACION,
   CULTIVOS_SOMBRA, MANEJO_AGRONOMICO, FOTO_TIPOS,
   ROLES_INFORMANTE, GENERO_LIDERAZGO, INFRAESTRUCTURA_SECADO,
-  TIPOS_FERMENTACION, PERFILES_TAZA, CERTIFICACIONES, MANEJO_AGUAS_MIELES, FAUNA_BIODIVERSIDAD, TIPOS_FUENTES_HIDRICAS
+  TIPOS_FERMENTACION, PERFILES_TAZA, CERTIFICACIONES, MANEJO_AGUAS_MIELES, FAUNA_BIODIVERSIDAD, TIPOS_FUENTES_HIDRICAS, HABEAS_DATA_TEXT
 } from '@/lib/constants';
 import MonthRangeSelector from '@/components/MonthRangeSelector';
 import LocationPicker from '@/components/LocationPicker';
@@ -1182,20 +1182,27 @@ export default function NuevaEncuestaPage() {
       {showTerms && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-lg)' }}>
           <div className="card" style={{ maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto', position: 'relative', border: '1px solid var(--color-accent)' }}>
-            <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)' }}>Tratamiento de Datos Personales</h2>
-            <div style={{ fontSize: '0.85rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.9)' }}>
-              <p>De conformidad con la <b>Ley 1581 de 2012 (Habeas Data)</b>, yo, en calidad de titular de la información, autorizo de manera libre, previa, expresa e informada a <b>CaféProy</b> para realizar el tratamiento de mis datos personales y de mi unidad productiva (finca).</p>
+            <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)', fontSize: '1.2rem' }}>{HABEAS_DATA_TEXT.title}</h2>
+            <div style={{ fontSize: '0.82rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.9)' }}>
+              <p style={{ marginBottom: 'var(--space-sm)' }}>{HABEAS_DATA_TEXT.intro}</p>
 
-              <p style={{ marginTop: 'var(--space-sm)' }}><b>Finalidades:</b><br />
-                - Caracterización técnica y social del caficultor.<br />
-                - Promoción comercial y marketing de cafés de especialidad.<br />
-                - Geolocalización para trazabilidad de origen.<br />
-                - Uso de material fotográfico para vitrinas comerciales.</p>
+              {HABEAS_DATA_TEXT.secciones.map((sec, idx) => (
+                <div key={idx} style={{ marginTop: 'var(--space-md)' }}>
+                  <b style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '4px' }}>{sec.titulo}</b>
+                  {sec.texto && <p>{sec.texto}</p>}
+                  {sec.items && (
+                    <ul style={{ paddingLeft: '1.2rem', margin: '4px 0' }}>
+                      {sec.items.map((item, i) => (
+                        <li key={i} style={{ marginBottom: '2px' }}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
 
-              <p style={{ marginTop: 'var(--space-sm)' }}><b>Mis Derechos:</b><br />
-                Entiendo que puedo conocer, actualizar, rectificar y solicitar la supresión de mis datos en cualquier momento. CaféProy garantiza la seguridad y confidencialidad de la información recolectada mediante protocolos de cifrado local y protección de bases de datos.</p>
-
-              <p style={{ marginTop: 'var(--space-sm)' }}>Al marcar la casilla de aceptación, confirmo que soy el titular o estoy facultado para entregar esta información y que autorizo el tratamiento bajo los términos aquí descritos.</p>
+              <p style={{ marginTop: 'var(--space-lg)', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 'var(--space-md)', fontWeight: 600 }}>
+                {HABEAS_DATA_TEXT.autorizacion}
+              </p>
             </div>
             <button className="btn btn-primary mt-lg" style={{ width: '100%' }} onClick={() => setShowTerms(false)}>Entendido y Cerrar</button>
           </div>

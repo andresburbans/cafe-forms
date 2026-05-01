@@ -165,3 +165,43 @@ export const TIPOS_FUENTES_HIDRICAS = [
   'Cascada',
   'Otro',
 ] as const;
+
+export const HABEAS_DATA_TEXT = {
+  title: 'Política de tratamiento de datos personales (Habeas Data)',
+  intro: 'En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes, yo, en calidad de titular de la información, autorizo de manera LIBRE, PREVIA, EXPRESA e INFORMADA a CaféProy (en adelante “El Responsable”) para que realice la recolección, almacenamiento, uso, circulación, supresión y tratamiento de mis datos personales y de mi unidad productiva.',
+  secciones: [
+    {
+      titulo: '1. Finalidades del tratamiento',
+      items: [
+        'Caracterización técnica, social y productiva del caficultor y su finca.',
+        'Geolocalización (GPS) para la trazabilidad de origen y verificación de sostenibilidad.',
+        'Recolección de material fotográfico y multimedia para la promoción comercial y marketing en vitrinas nacionales e internacionales.',
+        'Contacto directo para el envío de información técnica, comercial y de proyectos de impacto social.',
+        'Compartir información (incluyendo ubicación) con aliados comerciales y compradores de especialidad para facilitar el comercio directo.'
+      ]
+    },
+    {
+      titulo: '2. Tratamiento de datos sensibles',
+      texto: 'Manifiesto que he sido informado de que no estoy obligado a autorizar el tratamiento de datos sensibles (ubicación exacta o imágenes), sin embargo, autorizo su uso reconociendo que son esenciales para la certificación de origen y el valor comercial de mi café.'
+    },
+    {
+      titulo: '3. Derechos del titular',
+      items: [
+        'Conocer, actualizar y rectificar mis datos personales ante El Responsable.',
+        'Solicitar prueba de la autorización otorgada.',
+        'Ser informado sobre el uso que se le ha dado a mis datos.',
+        'Presentar quejas ante la Superintendencia de Industria y Comercio (SIC).',
+        'Revocar la autorización o solicitar la supresión del dato cuando no se respeten los principios constitucionales.'
+      ]
+    },
+    {
+      titulo: '4. Seguridad y almacenamiento',
+      texto: 'El Responsable garantiza que la información se almacena bajo estrictos protocolos de seguridad técnica, incluyendo cifrado de datos y protección contra accesos no autorizados, cumpliendo con los estándares mínimos exigidos por la SIC.'
+    },
+    {
+      titulo: '5. Canales de atención',
+      texto: 'Para ejercer mis derechos, podré contactarme a través del correo electrónico: burbano.hub@gmailcom o mediante los canales oficiales de soporte de la plataforma.'
+    }
+  ],
+  autorizacion: 'Al marcar la casilla de aceptación, confirmo que soy el titular de la información o estoy plenamente facultado para entregarla, y que autorizo el tratamiento bajo los términos aquí descritos.'
+};
