@@ -3592,42 +3592,116 @@ input[type=number] {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.4s ease;
+  padding: 1.5rem;
 }
 
 .credit-popup-card {
-  background: var(--color-bg-light);
-  color: var(--color-text-main);
-  padding: 2rem;
-  border-radius: var(--radius-lg);
-  max-width: 90%;
-  width: 400px;
+  background: #fdfbf7;
+  color: #2e4a36;
+  padding: 3rem 2rem 2.5rem;
+  border-radius: 2rem;
+  max-width: 480px;
+  width: 100%;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border: 1px solid rgba(46, 74, 54, 0.1);
 }
 
-.credit-popup-card a {
-  color: var(--color-primary);
+.credit-popup-x {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(46, 74, 54, 0.05);
+  color: #2e4a36;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.credit-popup-x:hover {
+  background: rgba(46, 74, 54, 0.1);
+  transform: rotate(90deg);
+}
+
+.credit-popup-icon {
+  margin-bottom: 1.5rem;
+  color: #c8956c;
+  display: flex;
+  justify-content: center;
+}
+
+.credit-popup-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.credit-popup-text {
+  line-height: 1.7;
+  color: #4a5d4e;
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+}
+
+.credit-popup-text a {
+  color: #c8956c;
   text-decoration: underline;
-  font-weight: 600;
+  text-underline-offset: 3px;
+  font-weight: 700;
 }
 
-.credit-popup-close {
-  margin-top: 1.5rem;
-  background: var(--color-primary);
+.credit-popup-btn {
+  background: #2e4a36;
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: 1rem 3rem;
   border-radius: 100px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  width: 100%;
+  transition: all 0.3s ease;
+  width: auto;
+  box-shadow: 0 10px 20px rgba(46, 74, 54, 0.2);
+}
+
+.credit-popup-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(46, 74, 54, 0.3);
+  background: #233a2a;
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes scaleUp {

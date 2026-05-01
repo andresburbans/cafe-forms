@@ -158,10 +158,11 @@ function FincaDetailContent() {
           <Field label="Bosque protegido (ha)" value={finca.areaBosqueHa} />
           <Field label="Fuentes hídricas" value={finca.numFuentesHidricas} />
         </div>
+        <Field label="Tipos de fuentes hídricas" value={[...finca.tipos_fuentes_hidricas, finca.otroTipoFuenteHidrica].filter(Boolean).join(', ') || 'N/A'} />
         <Field label="Cultivos sombra" value={[...finca.cultivosSombra, finca.otroCultivoSombra].filter(Boolean).join(', ') || 'N/A'} />
         <Field label="Manejo agronómico" value={manejoLabel || 'N/A'} />
         <Field label="Manejo aguas mieles" value={[finca.manejo_aguas_mieles, finca.otroManejoAguasMieles].filter(Boolean).join(' - ')} />
-        <Field label="Fauna y biodiversidad" value={finca.fauna_biodiversidad} />
+        <Field label="Fauna y biodiversidad" value={[...finca.fauna_biodiversidad, finca.otraFaunaBiodiversidad].filter(Boolean).join(', ') || 'N/A'} />
       </div>
 
       {/* GPS */}

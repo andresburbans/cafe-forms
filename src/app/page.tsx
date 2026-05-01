@@ -329,19 +329,24 @@ export default function HomePage() {
       {activeCredit && (
         <div className="credit-popup-overlay" onClick={() => setActiveCredit(null)}>
           <div className="credit-popup-card" onClick={e => e.stopPropagation()}>
-            <div style={{ marginBottom: '1rem', color: '#666' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <button className="credit-popup-x" onClick={() => setActiveCredit(null)}>×</button>
+            
+            <div className="credit-popup-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
               </svg>
             </div>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>Créditos de Imagen</h3>
-            <p style={{ lineHeight: '1.5', color: '#444' }}>
-              Foto de <a href={activeCredit.url} target="_blank" rel="noopener noreferrer">{activeCredit.name}</a> en <a href={activeCredit.photoUrl} target="_blank" rel="noopener noreferrer">Unsplash</a>
+
+            <h3 className="credit-popup-title">Créditos de Imagen</h3>
+            
+            <p className="credit-popup-text">
+              Esta hermosa fotografía es cortesía de <a href={activeCredit.url} target="_blank" rel="noopener noreferrer">{activeCredit.name}</a> a través de la comunidad de <a href={activeCredit.photoUrl} target="_blank" rel="noopener noreferrer">Unsplash</a>.
             </p>
-            <button className="credit-popup-close" onClick={() => setActiveCredit(null)}>
-              Cerrar
+
+            <button className="credit-popup-btn" onClick={() => setActiveCredit(null)}>
+              Entendido
             </button>
           </div>
         </div>

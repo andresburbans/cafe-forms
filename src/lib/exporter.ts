@@ -57,6 +57,16 @@ interface ExportRow {
   manejo_aguas_mieles: string;
   otroManejoAguasMieles: string;
   fauna_biodiversidad: string;
+  otraFaunaBiodiversidad: string;
+  tipos_fuentes_hidricas: string;
+  otroTipoFuenteHidrica: string;
+  altitudMSNM: number | null;
+  altitudElipsoidal: number | null;
+  gpsAlt: number | null;
+  gpsPrecision: number | null;
+  presionAtmosferica: number | null;
+  iluminacionAmbiental: number | null;
+  aceptaHabeasData: string;
   gpsLat: number | null;
   gpsLong: number | null;
   consentimientoImagen: string;
@@ -132,7 +142,17 @@ async function buildRows(): Promise<ExportRow[]> {
       manejoAgronomico: f.manejoAgronomico,
       manejo_aguas_mieles: f.manejo_aguas_mieles,
       otroManejoAguasMieles: f.otroManejoAguasMieles,
-      fauna_biodiversidad: f.fauna_biodiversidad,
+      fauna_biodiversidad: f.fauna_biodiversidad.join(', '),
+      otraFaunaBiodiversidad: f.otraFaunaBiodiversidad,
+      tipos_fuentes_hidricas: f.tipos_fuentes_hidricas.join(', '),
+      otroTipoFuenteHidrica: f.otroTipoFuenteHidrica,
+      altitudMSNM: f.altitudMSNM,
+      altitudElipsoidal: f.altitudElipsoidal,
+      gpsAlt: f.gpsAlt,
+      gpsPrecision: f.gpsPrecision,
+      presionAtmosferica: f.presionAtmosferica,
+      iluminacionAmbiental: f.iluminacionAmbiental,
+      aceptaHabeasData: f.aceptaHabeasData ? 'Sí' : 'No',
       gpsLat: f.gpsLat,
       gpsLong: f.gpsLong,
       consentimientoImagen: f.consentimientoImagen ? 'Sí' : 'No',

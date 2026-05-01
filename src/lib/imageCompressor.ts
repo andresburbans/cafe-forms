@@ -61,7 +61,7 @@ export async function compressImage(file: File): Promise<Blob> {
 export async function compressForFirestore(file: Blob | File, targetSizeKB: number = 200): Promise<string> {
   const MAX_ITERATIONS = 5;
   let currentQuality = 0.7;
-  let currentBlob = file instanceof Blob ? file : new Blob([file], { type: file.type });
+  const currentBlob = file;
   
   // First pass with default quality
   let compressed = await compressToBlob(currentBlob, currentQuality);

@@ -84,7 +84,7 @@ export default function NuevaEncuestaPage() {
     setForm((prev) => ({ ...prev, [key]: val }));
   }, []);
 
-  const toggleArray = useCallback((key: 'variedades' | 'metodosBeneficio' | 'cultivosSombra' | 'infraestructura_secado' | 'tipos_fermentacion' | 'perfil_taza' | 'certificaciones', val: string) => {
+  const toggleArray = useCallback((key: 'variedades' | 'metodosBeneficio' | 'cultivosSombra' | 'infraestructura_secado' | 'tipos_fermentacion' | 'perfil_taza' | 'certificaciones' | 'tipos_fuentes_hidricas' | 'fauna_biodiversidad', val: string) => {
     setForm((prev) => {
       const arr = prev[key] as string[];
       return { ...prev, [key]: arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val] };
@@ -219,7 +219,7 @@ export default function NuevaEncuestaPage() {
         surveyorId: isAuthenticated ? (surveyor?.id || authSurveyorId || 0) : 0,
         origenEncuesta: isAuthenticated ? 'encuestador' : 'particular',
         status,
-        createdAt: form.createdAt || now,
+        createdAt: now,
         updatedAt: now,
       };
 
@@ -1210,43 +1210,67 @@ export default function NuevaEncuestaPage() {
       )}
       {/* Modal Éxito */}
       {showSuccess && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)' }}>
-          <div className="card" style={{ 
-            maxWidth: '440px', 
-            width: '100%',
-            textAlign: 'center', 
-            padding: 'var(--space-2xl) var(--space-xl)', 
-            border: '1px solid rgba(200, 149, 108, 0.3)', 
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Success Icon */}
+        <div 
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15,15,15,0.9)', backdropFilter: 'blur(15px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)' }}
+          onClick={() => router.push('/')}
+        >
+          <div className="card" 
+            style={{ 
+              maxWidth: '480px', 
+              width: '100%',
+              textAlign: 'center', 
+              padding: '4rem 2rem 3rem', 
+              border: '1px solid rgba(200, 149, 108, 0.2)', 
+              boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
+              position: 'relative',
+              overflow: 'hidden',
+              background: '#1a1a1a'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={() => router.push('/')}
+              style={{ 
+                position: 'absolute', top: '1.5rem', right: '1.5rem', 
+                background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', 
+                width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer',
+                fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Success Icon with Animation */}
             <div style={{ 
-              width: '80px', 
-              height: '80px', 
+              width: '90px', 
+              height: '90px', 
               backgroundColor: 'rgba(74, 222, 128, 0.1)', 
               borderRadius: '50%', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              margin: '0 auto var(--space-lg)',
-              border: '2px solid var(--color-success)'
+              margin: '0 auto 2rem',
+              border: '2px solid var(--color-success)',
+              boxShadow: '0 0 30px rgba(74, 222, 128, 0.2)'
             }}>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
 
-            <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)', fontSize: '1.8rem', letterSpacing: '-0.02em' }}>¡Registro Exitoso!</h2>
+            <h2 style={{ color: 'var(--color-accent)', marginBottom: '1.5rem', fontSize: '2.2rem', letterSpacing: '-0.03em', fontWeight: 800 }}>
+              ¡Registro Exitoso!
+            </h2>
             
-            <p style={{ color: '#fff', opacity: 0.9, lineHeight: '1.6', marginBottom: 'var(--space-2xl)', fontSize: '1rem' }}>
-              La información de la finca ha sido guardada con éxito. Tu esfuerzo ahora es visible para el mundo entero.
+            <p style={{ color: '#f0ece8', opacity: 0.9, lineHeight: '1.7', marginBottom: '3rem', fontSize: '1.1rem' }}>
+              La información de la finca ha sido guardada y está lista para ser sincronizada. <br/>
+              <b>Tu esfuerzo ahora es visible para el mundo entero.</b>
             </p>
 
             <button
               className="btn btn-primary"
-              style={{ width: '100%', height: '58px', fontSize: '1.1rem', borderRadius: 'var(--radius-md)' }}
+              style={{ width: '100%', height: '64px', fontSize: '1.2rem', borderRadius: 'var(--radius-md)', fontWeight: 700 }}
               onClick={() => router.push('/')}
             >
               Finalizar y Salir
