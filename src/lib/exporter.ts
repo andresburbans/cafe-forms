@@ -61,8 +61,6 @@ interface ExportRow {
   tipos_fuentes_hidricas: string;
   otroTipoFuenteHidrica: string;
   altitudMSNM: number | null;
-  altitudElipsoidal: number | null;
-  gpsAlt: number | null;
   gpsPrecision: number | null;
   presionAtmosferica: number | null;
   iluminacionAmbiental: number | null;
@@ -147,8 +145,6 @@ async function buildRows(): Promise<ExportRow[]> {
       tipos_fuentes_hidricas: f.tipos_fuentes_hidricas.join(', '),
       otroTipoFuenteHidrica: f.otroTipoFuenteHidrica,
       altitudMSNM: f.altitudMSNM,
-      altitudElipsoidal: f.altitudElipsoidal,
-      gpsAlt: f.gpsAlt,
       gpsPrecision: f.gpsPrecision,
       presionAtmosferica: f.presionAtmosferica,
       iluminacionAmbiental: f.iluminacionAmbiental,

@@ -81,6 +81,7 @@ export default function NuevaEncuestaPage() {
   const [isGpsHovered, setIsGpsHovered] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLocationReminder, setShowLocationReminder] = useState(true);
+  const [isLightMode, setIsLightMode] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Conditionally define steps
@@ -90,6 +91,16 @@ export default function NuevaEncuestaPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [step]);
+
+  // Apply light-theme class to body
+  useEffect(() => {
+    if (isLightMode) {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    return () => document.body.classList.remove('light-theme');
+  }, [isLightMode]);
 
   const set = useCallback(<K extends keyof typeof form>(key: K, val: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [key]: val }));
@@ -284,9 +295,32 @@ export default function NuevaEncuestaPage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1 className="page-title">Nueva encuesta</h1>
-        <p className="page-subtitle">{surveySteps[step]} ({step + 1}/{surveySteps.length})</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 className="page-title">Nueva encuesta</h1>
+          <p className="page-subtitle">{surveySteps[step]} ({step + 1}/{surveySteps.length})</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsLightMode(!isLightMode)}
+          style={{
+            background: 'var(--color-bg-card)',
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-text-primary)',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '1.2rem',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+          title={isLightMode ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+        >
+          {isLightMode ? '🌙' : '☀️'}
+        </button>
       </div>
 
       {/* Stepper */}
@@ -348,8 +382,8 @@ export default function NuevaEncuestaPage() {
         <div className="card">
           <div className="section-header"><span className="section-number">1</span><span className="section-title">Perfil del caficultor y ubicación</span></div>
 
-          <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
-            <p style={{ color: '#ffffff', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-accent-glow)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
+            <p style={{ color: 'var(--color-text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
               <b>¡Queremos conocer tu historia!</b><br />
               Estos datos nos ayudan a crear un perfil único para tu café, conectando tu esfuerzo personal con los amantes del café que valoran el origen y la tradición.
             </p>
@@ -505,8 +539,8 @@ export default function NuevaEncuestaPage() {
         <div className="card">
           <div className="section-header"><span className="section-number">2</span><span className="section-title">Cosecha y productividad</span></div>
 
-          <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
-            <p style={{ color: '#ffffff', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-accent-glow)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
+            <p style={{ color: 'var(--color-text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
               <b>¡Tus números cuentan una gran historia!</b> <br />
               Conocer el tamaño de tu finca y tu producción nos permite planificar mejores oportunidades comerciales y asegurar que tu café llegue a los mercados correctos.
             </p>
@@ -670,8 +704,8 @@ export default function NuevaEncuestaPage() {
         <div className="card">
           <div className="section-header"><span className="section-number">3</span><span className="section-title">El café</span></div>
 
-          <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
-            <p style={{ color: '#ffffff', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-accent-glow)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
+            <p style={{ color: 'var(--color-text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
               <b>¡Aquí es donde ocurre la magia!</b><br />
               Tus métodos de beneficio y fermentación son los que crean los sabores únicos que buscan los compradores de café de especialidad en todo el mundo.
             </p>
@@ -818,8 +852,8 @@ export default function NuevaEncuestaPage() {
         <div className="card">
           <div className="section-header"><span className="section-number">4</span><span className="section-title">Sostenibilidad ambiental</span></div>
 
-          <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
-            <p style={{ color: '#ffffff', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-accent-glow)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
+            <p style={{ color: 'var(--color-text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
               <b>¡Tu compromiso con la naturaleza aumenta el valor de tu café!</b><br />
               A los compradores internacionales les encanta saber cómo proteges el agua, el bosque y los animales. Contar tu historia ambiental nos ayuda a conseguir mejores precios y mercados que valoran la sostenibilidad.
             </p>
@@ -1004,8 +1038,8 @@ export default function NuevaEncuestaPage() {
         <div className="card">
           <div className="section-header"><span className="section-number">5</span><span className="section-title">Geodata y multimedia</span></div>
 
-          <div style={{ padding: 'var(--space-md)', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
-            <p style={{ color: '#ffffff', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
+          <div style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-accent-glow)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-lg)', borderLeft: '4px solid var(--color-accent)' }}>
+            <p style={{ color: 'var(--color-text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
               <b>¡Hemos llegado al final, te agradecemos!</b><br />
               Un último paso y muy importante: Las fotos y la ubicación exacta validan el origen de tu café y permiten que el comprador "visite" tu finca virtualmente desde cualquier lugar del mundo.
             </p>
@@ -1024,20 +1058,20 @@ export default function NuevaEncuestaPage() {
               style={{
                 width: '100%',
                 height: '62px',
-                background: gpsLoading ? 'rgba(255,255,255,0.03)' : (isGpsHovered ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)'),
-                border: `1px solid ${gpsLoading ? '#BD8B64' : (isGpsHovered ? 'var(--color-accent)' : 'rgba(255,255,255,0.15)')}`,
+                background: gpsLoading ? 'var(--color-bg-card)' : (isGpsHovered ? 'var(--color-bg-card-hover)' : 'var(--color-bg-card)'),
+                border: `1px solid ${gpsLoading ? 'var(--color-accent)' : (isGpsHovered ? 'var(--color-accent)' : 'var(--color-border)')}`,
                 borderRadius: '18px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '14px',
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 fontSize: '1.05rem',
                 fontWeight: '600',
                 cursor: 'pointer',
                 position: 'relative',
                 overflow: 'hidden',
-                boxShadow: isGpsHovered ? '0 10px 25px rgba(236, 165, 33, 0.2)' : '0 10px 20px rgba(0,0,0,0.2)',
+                boxShadow: isGpsHovered ? '0 10px 25px rgba(189, 139, 100, 0.2)' : 'var(--shadow-md)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 backdropFilter: 'blur(5px)'
               }}
@@ -1265,7 +1299,7 @@ export default function NuevaEncuestaPage() {
               boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
               position: 'relative',
               overflow: 'hidden',
-              background: '#1a1a1a'
+              background: 'var(--color-bg-card)'
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -1274,7 +1308,7 @@ export default function NuevaEncuestaPage() {
               onClick={() => router.push('/')}
               style={{
                 position: 'absolute', top: '1.5rem', right: '1.5rem',
-                background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none',
+                background: 'var(--color-bg-card-hover)', color: 'var(--color-text-primary)', border: 'none',
                 width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer',
                 fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}
@@ -1304,7 +1338,7 @@ export default function NuevaEncuestaPage() {
               ¡Registro Exitoso!
             </h2>
 
-            <p style={{ color: '#f0ece8', opacity: 0.9, lineHeight: '1.7', marginBottom: '3rem', fontSize: '1.1rem' }}>
+            <p style={{ color: 'var(--color-text-primary)', opacity: 0.9, lineHeight: '1.7', marginBottom: '3rem', fontSize: '1.1rem' }}>
               La información de la finca ha sido guardada y está lista para ser sincronizada. <br />
               <b>Tu esfuerzo ahora es visible para el mundo entero.</b>
             </p>
@@ -1326,7 +1360,7 @@ export default function NuevaEncuestaPage() {
           <div className="card" style={{ maxWidth: '400px', textAlign: 'center', position: 'relative', border: '1px solid var(--color-accent)' }}>
             <div style={{ fontSize: '3rem', marginBottom: 'var(--space-sm)' }}></div>
             <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)', fontSize: '1.4rem' }}>Permisos de ubicación</h2>
-            <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.9)', marginBottom: 'var(--space-lg)' }}>
+            <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'var(--color-text-primary)', marginBottom: 'var(--space-lg)' }}>
               ¡Hola! Para que tu experiencia sea la mejor y podamos certificar el origen de tu café, recuerda <b>aceptar los permisos de ubicación (GPS)</b> cuando tu navegador te lo pida al llegar al último paso. <br /><br />¡Gracias por compartir tu historia!
             </p>
             <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setShowLocationReminder(false)}>¡Entendido!</button>

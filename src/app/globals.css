@@ -56,6 +56,27 @@
   --transition-slow: 400ms ease;
 }
 
+.light-theme, body.light-theme {
+  --color-bg-primary: #FDFBF7;
+  --color-bg-secondary: #ffffff;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f5f1e8;
+  --color-bg-input: #ffffff;
+  --color-bg-glass: rgba(255, 255, 255, 0.9);
+
+  --color-accent: #a07050;
+  --color-accent-light: #c8956c;
+  --color-accent-dark: #7a5030;
+  --color-accent-glow: rgba(160, 112, 80, 0.15);
+
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+  --color-text-muted: #7a7a7a;
+
+  --color-border: #eaddcc;
+  --color-border-focus: var(--color-accent);
+}
+
 /* ── Reset & Base ────────────────────────────────── */
 
 *,
