@@ -7,7 +7,7 @@ interface ExportRow {
   id: number;
   encuestador: string;
   fechaVisita: string;
-  idFincaOficina: string;
+  idFincaUnico: string;
   timestamp_inicio: string | null;
   timestamp_fin: string | null;
   sync_status: string | null;
@@ -93,7 +93,7 @@ async function buildRows(): Promise<ExportRow[]> {
       id: f.id!,
       encuestador: surveyor?.nombre || 'N/A',
       fechaVisita: f.fechaVisita,
-      idFincaOficina: f.idFincaOficina,
+      idFincaUnico: f.idFincaUnico,
       timestamp_inicio: f.timestamp_inicio,
       timestamp_fin: f.timestamp_fin,
       sync_status: f.sync_status,

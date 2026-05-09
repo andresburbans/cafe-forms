@@ -33,7 +33,7 @@ export default function ExportarPage() {
       const fincas = Array.from({ length: 1000 }).map((_, i) => {
         const now = new Date();
         return {
-          idFincaOficina: `TEST-${i}`,
+          idFincaUnico: `FNC-2605-TST${i}`,
           nombreFinca: `Finca Prueba ${i}`,
           nombreCaficultor: `Caficultor ${i}`,
           departamento: 'Huila',

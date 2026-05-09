@@ -48,7 +48,7 @@ export default function FincasPage() {
               <div className="farm-info">
                 <div className="farm-name">{farm.nombreFinca || 'Sin nombre'}</div>
                 <div className="farm-meta">{farm.nombreCaficultor} · {farm.municipio}</div>
-                <div className="farm-meta">📅 {farm.fechaVisita} · ID: {farm.idFincaOficina || 'N/A'}</div>
+                <div className="farm-meta">📅 {farm.fechaVisita} · Placa: {farm.idFincaUnico || 'N/A'}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className={`badge ${farm.status === 'completo' ? 'badge--complete' : 'badge--draft'}`}>

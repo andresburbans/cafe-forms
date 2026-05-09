@@ -25,14 +25,24 @@ function todayStr() {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
+function generarPlacaDigital() {
+  const d = new Date();
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluye O, 0, I, 1
+  let rnd = '';
+  for (let i = 0; i < 4; i++) rnd += chars[Math.floor(Math.random() * chars.length)];
+  return `FNC-${yy}${mm}-${rnd}`;
+}
+
 const emptyForm = (): Omit<Finca, 'id' | 'createdAt' | 'updatedAt'> => ({
-  surveyorId: 0, fechaVisita: todayStr(), idFincaOficina: '',
+  surveyorId: 0, fechaVisita: todayStr(), idFincaUnico: generarPlacaDigital(),
   timestamp_inicio: new Date().toISOString(), timestamp_fin: null,
   sync_status: null, accuracy_gps: null, rol_informante: '',
   nombreCaficultor: '', nombreFinca: '', departamento: '', municipio: '', vereda: '',
   whatsapp: '', correo: '', instagram: '', facebook: '',
-  genero_liderazgo: '', historia_finca: '',
-  altitud: null, altitudElipsoidal: null, altitudMSNM: null,
+  genero_liderazgo: '', nucleoFamiliar: 1, historia_finca: '',
+  altitud: null, altitudMSNM: null,
   anosTradicion: 1, areaTotalHa: null, areaCafeHa: null,
   plantasProduccion: 0, plantasLevante: 0, plantasZoca: 0,
   cosechaPrincipalIni: null, cosechaPrincipalFin: null,
@@ -48,7 +58,7 @@ const emptyForm = (): Omit<Finca, 'id' | 'createdAt' | 'updatedAt'> => ({
   areaBosqueHa: null, numFuentesHidricas: null, tipos_fuentes_hidricas: [], otroTipoFuenteHidrica: '', sinFuentesHidricas: false,
   cultivosSombra: [], otroCultivoSombra: '', manejoAgronomico: '', manejo_aguas_mieles: '', otroManejoAguasMieles: '',
   fauna_biodiversidad: [], otraFaunaBiodiversidad: '', sinFaunaBiodiversidad: false,
-  gpsLat: null, gpsLong: null, gpsAlt: null, gpsPrecision: null,
+  gpsLat: null, gpsLong: null, gpsPrecision: null,
   presionAtmosferica: null, iluminacionAmbiental: null,
   consentimientoImagen: false, aceptaHabeasData: false, observaciones: '',
   origenEncuesta: 'particular',
@@ -70,8 +80,9 @@ export default function NuevaEncuestaPage() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [isGpsHovered, setIsGpsHovered] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showLocationReminder, setShowLocationReminder] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
-  
+
   // Conditionally define steps
   const surveySteps = isAuthenticated ? STEPS : STEPS.slice(1);
 
@@ -138,13 +149,12 @@ export default function NuevaEncuestaPage() {
         const best = samples.sort((a, b) => a.accuracy - b.accuracy)[0];
         const lat = parseFloat(best.latitude.toFixed(7));
         const lon = parseFloat(best.longitude.toFixed(7));
-        const alt = best.altitude !== null ? parseFloat(best.altitude.toFixed(1)) : null;
         const precision = parseFloat(best.accuracy.toFixed(1));
         let msnm: number | null = null;
 
         setForm(prev => ({
           ...prev,
-          gpsLat: lat, gpsLong: lon, gpsAlt: alt, gpsPrecision: precision, altitudElipsoidal: alt
+          gpsLat: lat, gpsLong: lon, gpsPrecision: precision
         }));
 
         if (!isAuto) showToast(`Geodata fijada (±${precision}m)`);
@@ -159,7 +169,7 @@ export default function NuevaEncuestaPage() {
             }
           } catch (e) { console.error('Elevation API error:', e); }
         }
-        resolve({ lat, lon, alt, precision, msnm });
+        resolve({ lat, lon, alt: null, precision, msnm });
       }, timeout);
     });
   };
@@ -202,9 +212,7 @@ export default function NuevaEncuestaPage() {
             ...finalFormState,
             gpsLat: gpsResult.lat,
             gpsLong: gpsResult.lon,
-            gpsAlt: gpsResult.alt,
             gpsPrecision: gpsResult.precision,
-            altitudElipsoidal: gpsResult.alt,
             altitudMSNM: gpsResult.msnm,
             altitud: gpsResult.msnm || finalFormState.altitud
           };
@@ -224,15 +232,15 @@ export default function NuevaEncuestaPage() {
       };
 
       const fincaId = await db.fincas.add(finalFincaData) as number;
-      
+
       // Guardar fotos
       for (const photo of photos) {
         await db.fotos.add({
-          fincaId: fincaId, 
-          tipo: photo.tipo, 
+          fincaId: fincaId,
+          tipo: photo.tipo,
           blob: photo.blob,
-          nombre: photo.nombre, 
-          tamanioKB: Math.round(photo.blob.size / 1024), 
+          nombre: photo.nombre,
+          tamanioKB: Math.round(photo.blob.size / 1024),
           createdAt: now,
         });
       }
@@ -304,8 +312,17 @@ export default function NuevaEncuestaPage() {
               <input id="fecha-visita" className="form-input" value={form.fechaVisita} onChange={(e) => set('fechaVisita', e.target.value)} placeholder="DD/MM/AAAA" />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="id-finca-oficina">ID finca (oficina)</label>
-              <input id="id-finca-oficina" className="form-input" value={form.idFincaOficina} onChange={(e) => set('idFincaOficina', e.target.value)} placeholder="FNC-001" />
+              <label className="form-label">Placa Digital (Única)</label>
+              <div className="form-input" style={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                color: 'var(--color-accent)',
+                fontWeight: 'bold',
+                letterSpacing: '2px',
+                textAlign: 'center',
+                userSelect: 'all'
+              }}>
+                {form.idFincaUnico}
+              </div>
             </div>
           </div>
           <div className="form-group">
@@ -377,6 +394,31 @@ export default function NuevaEncuestaPage() {
                   {g}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="nucleo-familiar">Núcleo familiar</label>
+            <p className="form-hint mb-sm">Cantidad de personas que viven allí incluyéndose e incluyendo niños, abuelos, pareja, tíos, etc.</p>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-sm)' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-icon"
+                onClick={() => set('nucleoFamiliar', Math.max(1, (form.nucleoFamiliar || 1) - 1))}
+              >-</button>
+              <input
+                id="nucleo-familiar"
+                className="form-input"
+                type="number"
+                style={{ textAlign: 'center', fontSize: '1.2rem', fontWeight: '600' }}
+                value={form.nucleoFamiliar ?? 1}
+                onChange={(e) => set('nucleoFamiliar', e.target.value ? Math.max(1, Number(e.target.value)) : 1)}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-icon"
+                onClick={() => set('nucleoFamiliar', (form.nucleoFamiliar || 1) + 1)}
+              >+</button>
             </div>
           </div>
 
@@ -970,7 +1012,7 @@ export default function NuevaEncuestaPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Ubicación Geoespacial y Altitud</label>
+            <label className="form-label">Ubicación geoespacial y altitud</label>
             <p className="form-hint mb-md">Fijar la ubicación exacta nos ayuda a certificar que el café es de tu finca. Presiona el botón y espera unos segundos mientras calibramos la señal.</p>
 
             <button
@@ -1012,7 +1054,7 @@ export default function NuevaEncuestaPage() {
               }} />
 
               <span style={{ letterSpacing: '0.3px', opacity: gpsLoading ? 0.8 : 1 }}>
-                {gpsLoading ? 'Sincronizando con satélites...' : (form.gpsLat !== null ? 'Ubicación Fijada Correctamente' : 'Fijar Coordenadas del Origen')}
+                {gpsLoading ? 'Sincronizando con satélites...' : (form.gpsLat !== null ? 'Ubicación fijada correctamente' : 'Fijar coordenadas del origen')}
               </span>
 
               {/* Barra de Progreso Inferior */}
@@ -1036,8 +1078,7 @@ export default function NuevaEncuestaPage() {
                   <div className="gps-val"><span>Long:</span> {form.gpsLong || '--'}</div>
                 </div>
                 <div className="gps-row mt-xs">
-                  <div className="gps-val"><span>H. Elipsoidal:</span> {form.gpsAlt !== null ? `${form.gpsAlt} m` : '--'}</div>
-                  <div className="gps-val"><span>Alt. MSNM:</span> {form.altitudMSNM ? `${form.altitudMSNM} m` : (navigator.onLine ? '--' : 'Pendiente (Offline)')}</div>
+                  <div className="gps-val" style={{ flex: 1 }}><span>Alt. MSNM:</span> {form.altitudMSNM ? `${form.altitudMSNM} m` : (navigator.onLine ? '--' : 'Pendiente (Offline)')}</div>
                 </div>
                 <div className="gps-row mt-xs">
                   <div className="gps-val"><span>Presión:</span> {form.presionAtmosferica ? `${form.presionAtmosferica} hPa` : '--'}</div>
@@ -1204,23 +1245,23 @@ export default function NuevaEncuestaPage() {
                 {HABEAS_DATA_TEXT.autorizacion}
               </p>
             </div>
-            <button className="btn btn-primary mt-lg" style={{ width: '100%' }} onClick={() => setShowTerms(false)}>Entendido y Cerrar</button>
+            <button className="btn btn-primary mt-lg" style={{ width: '100%' }} onClick={() => setShowTerms(false)}>Entendido y cerrar</button>
           </div>
         </div>
       )}
       {/* Modal Éxito */}
       {showSuccess && (
-        <div 
+        <div
           style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15,15,15,0.9)', backdropFilter: 'blur(15px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-md)' }}
           onClick={() => router.push('/')}
         >
-          <div className="card" 
-            style={{ 
-              maxWidth: '480px', 
+          <div className="card"
+            style={{
+              maxWidth: '480px',
               width: '100%',
-              textAlign: 'center', 
-              padding: '4rem 2rem 3rem', 
-              border: '1px solid rgba(200, 149, 108, 0.2)', 
+              textAlign: 'center',
+              padding: '4rem 2rem 3rem',
+              border: '1px solid rgba(200, 149, 108, 0.2)',
               boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
               position: 'relative',
               overflow: 'hidden',
@@ -1229,11 +1270,11 @@ export default function NuevaEncuestaPage() {
             onClick={e => e.stopPropagation()}
           >
             {/* Close Button */}
-            <button 
+            <button
               onClick={() => router.push('/')}
-              style={{ 
-                position: 'absolute', top: '1.5rem', right: '1.5rem', 
-                background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', 
+              style={{
+                position: 'absolute', top: '1.5rem', right: '1.5rem',
+                background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none',
                 width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer',
                 fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}
@@ -1242,13 +1283,13 @@ export default function NuevaEncuestaPage() {
             </button>
 
             {/* Success Icon with Animation */}
-            <div style={{ 
-              width: '90px', 
-              height: '90px', 
-              backgroundColor: 'rgba(74, 222, 128, 0.1)', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              width: '90px',
+              height: '90px',
+              backgroundColor: 'rgba(74, 222, 128, 0.1)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 2rem',
               border: '2px solid var(--color-success)',
@@ -1262,9 +1303,9 @@ export default function NuevaEncuestaPage() {
             <h2 style={{ color: 'var(--color-accent)', marginBottom: '1.5rem', fontSize: '2.2rem', letterSpacing: '-0.03em', fontWeight: 800 }}>
               ¡Registro Exitoso!
             </h2>
-            
+
             <p style={{ color: '#f0ece8', opacity: 0.9, lineHeight: '1.7', marginBottom: '3rem', fontSize: '1.1rem' }}>
-              La información de la finca ha sido guardada y está lista para ser sincronizada. <br/>
+              La información de la finca ha sido guardada y está lista para ser sincronizada. <br />
               <b>Tu esfuerzo ahora es visible para el mundo entero.</b>
             </p>
 
@@ -1275,6 +1316,20 @@ export default function NuevaEncuestaPage() {
             >
               Finalizar y Salir
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Permisos de Ubicación */}
+      {showLocationReminder && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-lg)' }}>
+          <div className="card" style={{ maxWidth: '400px', textAlign: 'center', position: 'relative', border: '1px solid var(--color-accent)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: 'var(--space-sm)' }}></div>
+            <h2 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)', fontSize: '1.4rem' }}>Permisos de ubicación</h2>
+            <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.9)', marginBottom: 'var(--space-lg)' }}>
+              ¡Hola! Para que tu experiencia sea la mejor y podamos certificar el origen de tu café, recuerda <b>aceptar los permisos de ubicación (GPS)</b> cuando tu navegador te lo pida al llegar al último paso. <br /><br />¡Gracias por compartir tu historia!
+            </p>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setShowLocationReminder(false)}>¡Entendido!</button>
           </div>
         </div>
       )}

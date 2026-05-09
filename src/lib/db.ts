@@ -16,7 +16,7 @@ export interface Finca {
   id?: number;
   surveyorId: number;
   fechaVisita: string;
-  idFincaOficina: string;
+  idFincaUnico: string;
   timestamp_inicio: string | null;
   timestamp_fin: string | null;
   sync_status: 'online' | 'offline' | null;
@@ -33,9 +33,9 @@ export interface Finca {
   instagram: string;
   facebook: string;
   genero_liderazgo: string;
+  nucleoFamiliar: number | null;
   historia_finca: string;
   altitud: number | null; // MSNM
-  altitudElipsoidal: number | null;
   altitudMSNM: number | null;
   anosTradicion: number | null;
   // Sección 2
@@ -86,7 +86,6 @@ export interface Finca {
   // Sección 5 - GPS
   gpsLat: number | null;
   gpsLong: number | null;
-  gpsAlt: number | null; // Elipsoidal
   gpsPrecision: number | null;
   presionAtmosferica: number | null;
   iluminacionAmbiental: number | null;

@@ -90,7 +90,7 @@ function FincaDetailContent() {
         <Field label="Encuestador" value={surveyor?.nombre} />
         <div className="row-2">
           <Field label="Fecha visita" value={finca.fechaVisita} />
-          <Field label="ID Finca" value={finca.idFincaOficina} />
+          <Field label="Placa Digital" value={finca.idFincaUnico} />
         </div>
         <div className="row-2">
           <Field label="Rol Informante" value={finca.rol_informante} />
